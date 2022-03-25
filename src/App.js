@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+import styles from "./App.styles.module.scss";
+import CheckSolution from "./components/CheckSolution";
+import Grid from "./components/Grid";
+import Info from "./components/Info";
+import {examples} from "./examples";
+
+const App = () => {
+  const [matrix, setMatirx] = React.useState([]);
+  const [{dim, numbers, solution}] = React.useState(
+    examples[Math.floor(Math.random() * examples.length)]
   );
-}
+  const [check, setCheck] = React.useState("none");
+
+  return (
+    <main>
+      <h1 className={styles.heading}>
+        <span>Slither</span>
+        <span>Link</span>
+      </h1>
+      <Grid
+        dim={dim}
+        numbers={numbers}
+        matrix={matrix}
+        updateMatrix={setMatirx}
+        check={check}
+      />
+      <Info />
+      <CheckSolution matrix={matrix} solution={solution} setCheck={setCheck} />
+    </main>
+  );
+};
 
 export default App;
