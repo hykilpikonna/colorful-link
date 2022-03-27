@@ -75,6 +75,7 @@ $animationFillMode: forwards;
   opacity: 0;
   position: relative;
   cursor: pointer;
+  $interactionOffset: ($nodeSize - $edgeBreadth) * 4;
 
   &:after, &:before {
     content: "";
@@ -89,7 +90,7 @@ $animationFillMode: forwards;
     width: $edgeLength;
 
     &:after, &:before {
-      height: ($nodeSize - $edgeBreadth);
+      height: $interactionOffset;
       width: 100%;
       left: 0;
     }
@@ -111,7 +112,7 @@ $animationFillMode: forwards;
     margin: 0 ($nodeSize - $edgeBreadth) / 2;
 
     &:after, &:before {
-      width: ($nodeSize - $edgeBreadth);
+      width: $interactionOffset;
       height: 100%;
       top: 0;
     }
