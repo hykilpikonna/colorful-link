@@ -237,6 +237,8 @@ const Grid = ({
             check,
             readOnly && "readOnly",
           ])}
+          // disabling right click on grid
+          onContextMenu={(e) => e.preventDefault()}
         >
           {Array(nHorLine - 1)
             .fill(0)
