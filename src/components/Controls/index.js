@@ -1,11 +1,12 @@
 import * as React from "react";
 import AddPuzzleScreen from "../AddPuzzleScreen";
-import {Plus, Refresh, Reset} from "../Icons";
+import {Plus, Redo, Refresh, Reset, Undo} from "../Icons";
 
 import styles from "./styles.module.scss";
 
-const Controls = ({onRefresh, onReset, editorMode}) => {
+const Controls = ({onRefresh, onReset, onUndo, onRedo, editorMode}) => {
   const [showAddScreen, setShowAddScreen] = React.useState(false);
+
   return (
     <>
       <div className={styles.controls}>
@@ -18,6 +19,14 @@ const Controls = ({onRefresh, onReset, editorMode}) => {
         <div className={styles.reset} onClick={onReset}>
           <Reset />
           <span>Reset</span>
+        </div>
+        <div className={styles.undo} onClick={onUndo}>
+          <Undo />
+          <span>Undo</span>
+        </div>
+        <div className={styles.redo} onClick={onRedo}>
+          <Redo />
+          <span>Redo</span>
         </div>
         {!editorMode && (
           <div className={styles.add} onClick={() => setShowAddScreen(true)}>

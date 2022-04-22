@@ -1,6 +1,9 @@
 import {DEFAULT_NODE} from "./components/Grid";
 import {EDGE_STATE} from "./constants";
 
+// get deep copy of JSON
+export const copy = (json) => JSON.parse(JSON.stringify(json));
+
 // to get multiple styles in space-seperated format
 export const multiStyles = (styles, classNames) =>
   classNames
