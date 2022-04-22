@@ -5,7 +5,6 @@ export const EDGE_STATE = {
 };
 
 export const EXAMPLE_GRID_PROPS = {
-  readOnly: true,
   dim: [7, 7],
   edges: [
     {a: [0, 0], b: [0, 1]},
@@ -135,7 +134,6 @@ export const EXAMPLE_GRID_PROPS = {
 };
 
 export const NOT_ALLOWED_1_GRID_PROPS = {
-  readOnly: true,
   dim: [2, 2],
   edges: [
     {a: [0, 1], b: [1, 1], hovered: true},
@@ -147,7 +145,6 @@ export const NOT_ALLOWED_1_GRID_PROPS = {
 };
 
 export const NOT_ALLOWED_2_GRID_PROPS = {
-  readOnly: true,
   dim: [2, 3],
   edges: [
     {a: [0, 1], b: [1, 1]},

@@ -4,6 +4,7 @@ import {
   NOT_ALLOWED_1_GRID_PROPS,
   NOT_ALLOWED_2_GRID_PROPS,
 } from "../../constants";
+import {getMatrix} from "../../utils";
 import Grid from "../Grid";
 
 import styles from "./styles.module.scss";
@@ -13,8 +14,9 @@ const Info = () => {
 
   return (
     <>
-      <div className={styles.button} onClick={() => setOpen(true)}>
-        i
+      <div className={styles.container} onClick={() => setOpen(true)}>
+        <div className={styles.button}>i</div>
+        <span>Info</span>
       </div>
       {open && (
         <div className={styles.info}>
@@ -26,15 +28,36 @@ const Info = () => {
               Connect adjacent dots with vertical or horizontal lines, creating
               a single loop.
               <div className={styles.eg}>
-                <Grid {...EXAMPLE_GRID_PROPS} />
+                <Grid
+                  matrix={getMatrix(
+                    EXAMPLE_GRID_PROPS.dim,
+                    EXAMPLE_GRID_PROPS.edges,
+                    EXAMPLE_GRID_PROPS.numbers
+                  )}
+                  readOnly
+                />
               </div>
             </div>
             <div className={styles.item}>
               Crossovers or branches are not allowed (as shown by dotted lines
               below).
               <div className={styles.eg}>
-                <Grid {...NOT_ALLOWED_1_GRID_PROPS} />
-                <Grid {...NOT_ALLOWED_2_GRID_PROPS} />
+                <Grid
+                  matrix={getMatrix(
+                    NOT_ALLOWED_1_GRID_PROPS.dim,
+                    NOT_ALLOWED_1_GRID_PROPS.edges,
+                    NOT_ALLOWED_1_GRID_PROPS.numbers
+                  )}
+                  readOnly
+                />
+                <Grid
+                  matrix={getMatrix(
+                    NOT_ALLOWED_2_GRID_PROPS.dim,
+                    NOT_ALLOWED_2_GRID_PROPS.edges,
+                    NOT_ALLOWED_2_GRID_PROPS.numbers
+                  )}
+                  readOnly
+                />
               </div>
             </div>
             <div className={styles.item}>

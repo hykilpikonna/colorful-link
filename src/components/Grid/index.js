@@ -20,110 +20,19 @@ import styles from "./styles.module.scss";
       V         V       V
 */
 
-const DEFAULT_NODE = {neigh: [], n: -1};
+export const DEFAULT_NODE = {neigh: [], n: -1};
 /* 
   structure for neigh elements: 
     {state: <EDGE_STATE>, loc: [x, y]}
 */
 
-const Grid = ({
-  dim = [3, 3],
-  edges = [],
-  numbers = [],
-  matrix: propMatrix = [],
-  updateMatrix: updatePropMatrix = () => {},
-  readOnly,
-  onReset: propOnReset,
-  editorMode,
-  check,
-  className,
-}) => {
-  const nRows = dim[0];
-  const nCols = dim[1];
-  const nHorLine = nRows + 1;
-  const nVerLine = nCols + 1;
-  const [matrix, setMatrix] = React.useState([]);
+const Grid = ({matrix, setMatrix, readOnly, editorMode, state, className}) => {
+  const nHorLine = matrix?.length || 0;
+  const nVerLine = matrix?.[0]?.length || 0;
 
-  const setPropMatrix = (matrix) => {
-    if (Array.isArray(propMatrix)) {
-      updatePropMatrix(matrix);
-    }
-  };
-
-  // initializing matrix with prop edges and numbers
-  React.useEffect(() => {
-    let temp = new Array(nHorLine)
-      .fill(0)
-      .map(() => new Array(nVerLine).fill(DEFAULT_NODE));
-    numbers.forEach(({r, c, n}) => {
-      if (r <= nRows && c <= nCols) {
-        temp[r - 1][c - 1] = {...temp[r - 1][c - 1], n};
-      }
-    });
-    edges.forEach(({a: [sx, sy], b: [ex, ey], notAllowed, hovered}) => {
-      const edgeState = notAllowed
-        ? EDGE_STATE.NOT_ALLOWED
-        : hovered
-        ? EDGE_STATE.HOVERED
-        : EDGE_STATE.ACTIVE;
-      let startX, startY, endX, endY, hor, ver;
-      hor = sx === ex;
-      ver = sy === ey;
-
-      // excluding cases where both points are same
-      // or where edge is not hor | ver
-      // Assumption: all edges are between two adjacent nodes
-      if ((hor && ver) || (!hor && !ver)) {
-        return;
-      }
-
-      // horizonal line
-      if (hor) {
-        startX = endX = sx;
-        if (sy > ey) {
-          startY = ey;
-          endY = sy;
-        }
-        if (sy < ey) {
-          startY = sy;
-          endY = ey;
-        }
-      }
-      // vertical line
-      if (ver) {
-        startY = endY = sy;
-        if (sx > ex) {
-          startX = ex;
-          endX = sx;
-        }
-        if (sx < ex) {
-          startX = sx;
-          endX = ex;
-        }
-      }
-
-      // check if all nodes are valid nodes
-      if (areValid([startX, endX], nRows) && areValid([startY, endY], nCols)) {
-        temp[startX][startY] = {
-          ...temp[startX][startY],
-          neigh: [
-            ...temp[startX][startY].neigh,
-            {state: edgeState, loc: [endX, endY]},
-          ],
-        };
-        temp[endX][endY] = {
-          ...temp[endX][endY],
-          neigh: [
-            ...temp[endX][endY].neigh,
-            {state: edgeState, loc: [startX, startY]},
-          ],
-        };
-      }
-    });
-
-    setMatrix(temp);
-    setPropMatrix(temp);
-  }, []);
+  if (nHorLine === 0 || nVerLine === 0) {
+    return null;
+  }
 
   const updateMatrix = (dataArray) => {
     let temp = matrix.slice();
@@ -131,10 +40,13 @@ const Grid = ({
       temp[x][y] = {...temp[x][y], ...data};
     });
     setMatrix(temp);
-    setPropMatrix(temp);
   };
 
   const onLineClick = (x, y, direction, click) => {
+    if (readOnly) {
+      return;
+    }
+
     const isMiddleClick = click === "middle";
     const node = [x, y];
     const otherNode = direction === "horizontal" ? [x, y + 1] : [x + 1, y];
@@ -204,89 +116,61 @@ const Grid = ({
     onLineClick(x, y, direction, "middle");
 
   const onNumberChange = (x, y, num) => {
+    if (!editorMode || readOnly) {
+      return;
+    }
     updateMatrix([{node: [x, y], data: {n: num}}]);
   };
 
-  const onReset = () => {
-    let temp = new Array(nHorLine)
-      .fill(0)
-      .map(() => new Array(nVerLine).fill(DEFAULT_NODE));
-    numbers.forEach(({r, c, n}) => {
-      if (r <= nRows && c <= nCols) {
-        temp[r - 1][c - 1] = {...temp[r - 1][c - 1], n};
-      }
-    });
-    if (editorMode) {
-      propOnReset();
-    }
-    setMatrix(temp);
-    setPropMatrix(temp);
-  };
-
-  const onRefresh = () => {
-    window.location.reload();
-  };
-
   return (
-    <>
-      {matrix.length > 0 && (
-        <div
-          className={multiStyles(styles, [
-            "canvas",
-            className,
-            check,
-            readOnly && "readOnly",
-          ])}
-          // disabling right click on grid
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {Array(nHorLine - 1)
-            .fill(0)
-            .map((_, i) => {
-              return [
-                <LineRow
-                  matX={i}
-                  mat={matrix}
-                  n={nVerLine}
-                  onLineClick={onLineLeftClick}
-                  onLineRightClick={onLineRightClick}
-                  onLineMiddleClick={onLineMiddleClick}
-                  key={`line_row_${i}`}
-                />,
-                <NumberRow
-                  matX={i}
-                  mat={matrix}
-                  n={nVerLine}
-                  onLineClick={onLineLeftClick}
-                  onLineRightClick={onLineRightClick}
-                  onLineMiddleClick={onLineMiddleClick}
-                  onNumberChange={onNumberChange}
-                  editorMode={editorMode}
-                  key={`number_row_${i}`}
-                />,
-              ];
-            })
-            .concat([
-              <LineRow
-                matX={nHorLine - 1}
-                mat={matrix}
-                n={nVerLine}
-                onLineClick={onLineLeftClick}
-                onLineRightClick={onLineRightClick}
-                onLineMiddleClick={onLineMiddleClick}
-                key={`line_row_${nHorLine - 1}`}
-              />,
-            ])}
-        </div>
-      )}
-      {!readOnly && (
-        <Controls
-          onReset={onReset}
-          onRefresh={onRefresh}
-          editorMode={editorMode}
-        />
-      )}
-    </>
+    <div
+      className={multiStyles(styles, [
+        "canvas",
+        className,
+        state,
+        readOnly && "readOnly",
+      ])}
+      // disabling right click on grid
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {Array(nHorLine - 1)
+        .fill(0)
+        .map((_, i) => {
+          return [
+            <LineRow
+              matX={i}
+              mat={matrix}
+              n={nVerLine}
+              onLineClick={onLineLeftClick}
+              onLineRightClick={onLineRightClick}
+              onLineMiddleClick={onLineMiddleClick}
+              key={`line_row_${i}`}
+            />,
+            <NumberRow
+              matX={i}
+              mat={matrix}
+              n={nVerLine}
+              onLineClick={onLineLeftClick}
+              onLineRightClick={onLineRightClick}
+              onLineMiddleClick={onLineMiddleClick}
+              onNumberChange={onNumberChange}
+              editorMode={editorMode}
+              key={`number_row_${i}`}
+            />,
+          ];
+        })
+        .concat([
+          <LineRow
+            matX={nHorLine - 1}
+            mat={matrix}
+            n={nVerLine}
+            onLineClick={onLineLeftClick}
+            onLineRightClick={onLineRightClick}
+            onLineMiddleClick={onLineMiddleClick}
+            key={`line_row_${nHorLine - 1}`}
+          />,
+        ])}
+    </div>
   );
 };
 

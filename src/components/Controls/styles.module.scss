@@ -19,6 +19,7 @@
     font-size: 12px;
     color: #90a4ae;
     gap: 2px;
+    cursor: pointer;
 
     & > svg {
       background-color: #263238;
@@ -28,21 +29,19 @@
       border: 2px solid #455a64;
       font-family: Georgia, 'Times New Roman', Times, serif;
       color: #fafafa;
-
       border-radius: 50%;
-      cursor: pointer;
       transition: all 0.2s;
       font-style: italic;
-
-      &:hover {
-        border-color: #78909c;
-        font-size: 22px;
-        color: white;
-      }
     }
 
     &:hover {
       transform: scale(1.1);
+
+      & > svg {
+        border-color: #78909c;
+        font-size: 22px;
+        color: white;
+      }
     }
   }
 }

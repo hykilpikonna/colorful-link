@@ -1,5 +1,6 @@
 import * as React from "react";
-import {getNumbers, multiStyles} from "../../utils";
+import {getMatrix, getNumbers, multiStyles} from "../../utils";
+import Controls from "../Controls";
 import Grid from "../Grid";
 import N from "../Grid/components/N";
 
@@ -8,8 +9,14 @@ import styles from "./styles.module.scss";
 const AddPuzzleScreen = ({open, onClose}) => {
   const [dim, setDim] = React.useState([3, 3]);
   const [gridMat, setGridMat] = React.useState([]);
-
   const [gridNumbers, setGridNumbers] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!isNaN(dim[0]) && dim[0] > 0 && !isNaN(dim[1]) && dim[1] > 0) {
+      setGridMat(getMatrix(dim, [], gridNumbers));
+    }
+  }, [dim[0], dim[1]]);
+
   React.useEffect(() => {
     setGridNumbers(getNumbers(gridMat));
   }, [JSON.stringify(gridMat)]);
@@ -17,10 +24,13 @@ const AddPuzzleScreen = ({open, onClose}) => {
   const [gridReset, setGridReset] = React.useState(false);
   React.useEffect(() => {
     if (gridReset) {
+      if (!isNaN(dim[0]) && dim[0] > 0 && !isNaN(dim[1]) && dim[1] > 0) {
+        setGridNumbers([]);
+        setGridMat(getMatrix(dim));
+      }
       setGridReset(false);
     }
   }, [gridReset]);
-
   const [submitState, setSubmitState] = React.useState("none");
   const [submitText, setSubmitText] = React.useState("Submit");
   const onSubmit = () => {
@@ -40,7 +50,7 @@ const AddPuzzleScreen = ({open, onClose}) => {
   }, [submitState]);
 
   const shouldShowGrid =
-    !isNaN(dim[0]) && dim[0] > 0 && !isNaN(dim[1]) && dim[1] > 0 && !gridReset;
+    !isNaN(dim[0]) && dim[0] > 0 && !isNaN(dim[1]) && dim[1] > 0;
 
   return (
     <>
@@ -79,34 +89,27 @@ const AddPuzzleScreen = ({open, onClose}) => {
             <div className={styles.content}>
               <div className={styles.matrixGrid}>
                 {shouldShowGrid ? (
-                  <Grid
-                    dim={dim}
-                    matrix={gridMat}
-                    updateMatrix={setGridMat}
-                    numbers={gridNumbers}
-                    onReset={() => {
-                      setGridNumbers([]);
-                      setGridReset(true);
-                    }}
-                    editorMode
-                  />
+                  <Grid matrix={gridMat} setMatrix={setGridMat} editorMode />
                 ) : (
                   "Please set valid dimensions above"
                 )}
               </div>
             </div>
             <div className={styles.content}>
-              <a
-                href={`mailto:amey23399@gmail.com?subject=Slither Link Example&body=${JSON.stringify(
-                  gridNumbers
-                )}`}
-                className={multiStyles(styles, ["submitButton", submitState])}
-                onClick={onSubmit}
-              >
-                {submitText}
-              </a>
+              {shouldShowGrid && (
+                <a
+                  href={`mailto:amey23399@gmail.com?subject=Slither Link Example&body=${JSON.stringify(
+                    gridNumbers
+                  )}`}
+                  className={multiStyles(styles, ["submitButton", submitState])}
+                  onClick={onSubmit}
+                >
+                  {submitText}
+                </a>
+              )}
             </div>
           </section>
+          <Controls onReset={() => setGridReset(true)} editorMode />
         </div>
       )}
     </>
