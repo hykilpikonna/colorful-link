@@ -20,14 +20,18 @@ const Controls = ({onRefresh, onReset, onUndo, onRedo, editorMode}) => {
           <Reset />
           <span>Reset</span>
         </div>
-        <div className={styles.undo} onClick={onUndo}>
-          <Undo />
-          <span>Undo</span>
-        </div>
-        <div className={styles.redo} onClick={onRedo}>
-          <Redo />
-          <span>Redo</span>
-        </div>
+        {!editorMode && (
+          <div className={styles.undo} onClick={onUndo}>
+            <Undo />
+            <span>Undo</span>
+          </div>
+        )}
+        {!editorMode && (
+          <div className={styles.redo} onClick={onRedo}>
+            <Redo />
+            <span>Redo</span>
+          </div>
+        )}
         {!editorMode && (
           <div className={styles.add} onClick={() => setShowAddScreen(true)}>
             <Plus />

@@ -8,7 +8,7 @@ const N = ({className, value, setNum, editorMode, ...props}) => {
       <input
         readOnly={!editorMode}
         onChange={(e) => setNum(parseInt(e.target.value))}
-        value={value >= 0 && !isNaN(value) ? value : undefined}
+        value={value >= 0 && !isNaN(value) ? value : ""}
       />
     </span>
   );
