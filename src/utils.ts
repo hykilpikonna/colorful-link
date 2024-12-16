@@ -18,20 +18,26 @@ export const nStates = {
   complete: 2
 }
 
-export function sty(styles: any) {
-  return Object.entries(styles)
-    .map(([key, value]) => `${key}:${value}`)
-    .join(';');
-}
+export const sty = (styles: any) => Object.entries(styles).map(([k, v]) => `${k}:${v}`).join(';')
+export const pos = (x: number, y: number) => `top:${y}px;left:${x}px;`
+export const randInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
+export const range = (n: number) => Array.from({length: n}, (_, i) => i)
 
-export function pos(x: number, y: number) {
-  return `top:${y}px;left:${x}px;`;
-}
+// Json with TypedArray serialization
+export const JsonTy = {
+  stringify: (obj: any) => JSON.stringify(obj, (_, v) => {
+    if (ArrayBuffer.isView(v)) {
+      // @ts-ignore Check if it's a TypedArray and serialize it
+      return { __typedArray__: true, type: v.constructor.name, data: Array.from(v) };
+    }
+    return v; // For all other data types, keep it as is
+  }),
 
-export function randInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function range(n: number) {
-  return Array.from({length: n}, (_, i) => i);
+  parse: (json: string) => JSON.parse(json, (_, v) => {
+    if (v && v.__typedArray__) {
+      // @ts-ignore Deserialize the TypedArray
+      return new globalThis[v.type](v.data);
+    }
+    return v; // For all other data types, keep it as is
+  })
 }
