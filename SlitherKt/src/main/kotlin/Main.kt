@@ -6,37 +6,38 @@ import javax.imageio.ImageIO
 fun main() {
     // Read image
     val image = ImageIO.read(File("slither-cat.png"))
-    val grid = 40 to 40
+    val grid = 41 to 41
     println("Image size: ${image.width}x${image.height}")
 
     // Compute the pixel size of each grid
-    val pixelSize = image.width / grid.first to image.height / grid.second
+    val pixelSize = image.width.toDouble() / (grid.first - 1) to image.height.toDouble() / (grid.second - 1)
     println("Pixel size: ${pixelSize.first}x${pixelSize.second}")
-
-    fun center(p1: Pair<Int, Int>, p2: Pair<Int, Int>) = Pair((p1.first + p2.first) / 2, (p1.second + p2.second) / 2)
 
     // Function to parse and return lines adjacent to a grid cell
     fun checkLines(cell: Pair<Int, Int>): List<Pair<Pair<Int, Int>, Pair<Int, Int>>> {
         val (sxc, syc) = cell
-        val (exc, eyc) = sxc + 1 to syc + 1
 
         // Start and end pixel of the cell
         val (sxp, syp) = sxc * pixelSize.first to syc * pixelSize.second
-        val (exp, eyp) = exc * pixelSize.first to eyc * pixelSize.second
 
         // Get the edges. The edges are the center between two points
         val edges = mapOf(
-            (sxc to syc) to center(sxp to syp, exp to syp),
-            (exc to syc) to center(exp to syp, exp to eyp),
-            (sxc to eyc) to center(sxp to eyp, exp to eyp),
-            (exc to eyc) to center(sxp to eyp, exp to eyp),
+            (sxc to syc + 1) to (sxp.toInt() to (syp + pixelSize.second / 2).toInt()),
+            (sxc + 1 to syc) to ((sxp + pixelSize.first / 2).toInt() to syp.toInt()),
         )
 
         // Return edges that are colored black (grayness < 16)
         return edges.filter { (_, p) ->
-            val (x, y) = p
-            val rgb = image.getRGB(x, y).toUInt().toULong()
+            val (rx, ry) = p
+            if (rx >= image.width + 5 || ry >= image.height + 5) return@filter false
+            val (x, y) = rx.coerceIn(0, image.width - 1) to ry.coerceIn(0, image.height - 1)
+            val rgb = image.getRGB(x, y).toULong()
             val grayness: ULong = (rgb and 0xFFu) + ((rgb shr 8) and 0xFFu) + ((rgb shr 16) and 0xFFu)
+
+            // Debug : Draw a red point on the image
+            if (grayness < 16u)
+                image.setRGB(x, y, 0xFFFF0000.toInt())
+
             grayness < 16u
         }.map { (p, _) -> p }.map { p -> cell to p }
     }
@@ -49,5 +50,8 @@ fun main() {
     }.flatten()
 
     // Print the lines
-    lines.forEach { (p1, p2) -> println("{a: [${p1.first}, ${p1.second}], b: [${p2.first}, ${p2.second}]},") }
+    lines.forEach { (p1, p2) -> println("[${p1.first}, ${p1.second}, ${p2.first}, ${p2.second}],") }
+
+    // Debug: Save the image
+    ImageIO.write(image, "png", File("slither-cat-out.png"))
 }
