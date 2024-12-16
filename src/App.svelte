@@ -9,7 +9,7 @@
   const [rows, cols] = [40, 40]
   const [eRows, eCols] = [rows + 1, cols + 1]
   let numbers = Int8Array.from({ length: rows * cols }, () => 0)
-  let numberMasked = Int8Array.from({ length: rows * cols }, () => 0)
+  let numberMasked = Int8Array.from({ length: rows * cols }, () => 1)
   let hedgeStates = Int8Array.from({ length: eRows * eCols }, () => 0)
   let vedgeStates = Int8Array.from({ length: eRows * eCols }, () => 0)
 
@@ -22,21 +22,15 @@
       const [ sx, sy, ex, _ ] = edge
       const isVertical = sx === ex
       if (isVertical) {
-        vedgeStates[sy * (eCols) + sx] = 1
+        // vedgeStates[sy * (eCols) + sx] = 1
         if (ex != cols) numbers[sy * cols + sx] += 1
         if (sx != 0) numbers[sy * cols + sx - 1] += 1
       } else {
-        hedgeStates[sy * (eCols) + sx] = 1
-        // numbers[sy * cols + sx] += 1
-        // if (sx != 0) numbers[(sy - 1) * cols + sx] += 1
+        // hedgeStates[sy * (eCols) + sx] = 1
+        if (ex != rows) numbers[sy * cols + sx] += 1
+        if (sx != 0) numbers[(sy - 1) * cols + sx] += 1
       }
     })
-  }
-
-  function clickEdge(sx: number, sy: number, tx: number, ty: number) {
-    console.log(sx, sy, tx, ty)
-    // const edge = edgeMap[`${sx}-${sy}-${tx}-${ty}`]
-    hedgeStates[sy * (cols + 1) + sx] = 1
   }
 
   // Positions for click handling
@@ -58,6 +52,7 @@
     <span class="title">Slither Link</span>
     <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
   </div>
+  {#if editMode}<div class="edit-mode-banner">Edit Mode</div>{/if}
 
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
@@ -81,12 +76,27 @@
 </main>
 
 <style lang="sass">
+  main
+    display: flex
+    flex-direction: column
+    gap: 1em
+    padding: 1em
+
   .heading
     display: flex
     justify-content: center
     align-items: center
     gap: 1em
-    padding: 1em
+    will-change: filter
+    transition: filter 300ms
+
+    &:hover
+      filter: drop-shadow(0 0 2em #646cffaa)
+
+  .edit-mode-banner
+    font-size: 1.2em
+    text-align: center
+    color: #55c7e8
 
   .title
     font-size: 3em
@@ -95,13 +105,4 @@
   .logo
     height: 3em
     padding: 1.5em
-    will-change: filter
-    transition: filter 300ms
-
-  .logo:hover
-    filter: drop-shadow(0 0 2em #646cffaa)
-
-  .logo.svelte:hover
-    filter: drop-shadow(0 0 2em #ff3e00aa)
-
 </style>
