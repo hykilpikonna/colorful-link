@@ -209,7 +209,7 @@
   </div>
 
   {#if editMode}
-    <div>
+    <div class="btn-div">
       {#if maskMode}
         <button on:click={() => {
            solve(rows, cols, numbers, numberMask).then(({horiStates, vertStates}) => {
@@ -228,22 +228,17 @@
         <button on:click={() => alert("TODO")}>Gen Numbers</button>
         <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       {/if}
-      <button on:click={() => maskMode = !maskMode}>Toggle Mask Mode ({maskMode ? "off" : "on"})</button>
-    </div>
-
-    <div>Checkpoints</div>
-    <!-- Add Checkpoint -->
-    <div class="btn-div">
-      <button on:click={savePt(() => ckpts.push(ckpt()))}>Add</button>
-      <button on:click={savePt(() => ckpts[ckpts.length - 1] = ckpt())}>Overwrite</button>
-      <button on:click={savePt(() => ckpts.pop())}>Remove</button>
-    </div>
-    <div class="btn-div">
-      {#each ckpts as cp, i}
-        <button on:click={() => restorePt(cp)}>{i + 1}</button>
-      {/each}
+      <button on:click={() => maskMode = !maskMode}>{maskMode ? "Line Mode" : "Mask Mode"}</button>
     </div>
   {/if}
+
+  <!-- Add Checkpoint -->
+  <div class="btn-div">
+    <button on:click={savePt(() => ckpts.push(ckpt()))}>Add</button>
+    <button on:click={savePt(() => ckpts[ckpts.length - 1] = ckpt())}>Overwrite</button>
+    <button on:click={savePt(() => ckpts.pop())}>Remove</button>
+    {#each ckpts as cp, i}<button on:click={() => restorePt(cp)}>{i + 1}</button>{/each}
+  </div>
 </main>
 
 <style lang="sass">
