@@ -1,17 +1,15 @@
-import * as React from "react";
 import {multiStyles} from "../../../utils";
 import styles from "../styles.module.scss";
 
 const N = ({className, value, setNum, editorMode, ...props}) => {
-  return (
-    <span className={multiStyles(styles, ["number", className])} {...props}>
-      <input
-        readOnly={!editorMode}
-        onChange={(e) => setNum(parseInt(e.target.value))}
-        value={value >= 0 && !isNaN(value) ? value : ""}
-      />
-    </span>
-  );
-};
+    const v = value >= 0 && !isNaN(value) ? value : ""
 
-export default N;
+    return (<span className={multiStyles(styles, ["number", className])} {...props}>
+        {editorMode && <input
+            onChange={(e) => setNum(parseInt(e.target.value))}
+            value={v}
+        /> || v}
+    </span>)
+}
+
+export default N
