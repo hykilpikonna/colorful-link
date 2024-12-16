@@ -45,8 +45,9 @@ Solved
 Total time:     0.053913 seconds
  */
 
-export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8Array): Promise<[Int8Array, Int8Array]> {
+export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8Array) {
   const [eRows, eCols] = [w + 1, h + 1]
+  const [horiStates, vertStates] = [new Int8Array(eRows * eCols), new Int8Array(eRows * eCols)]
 
   // Format data: numbers, mask
   let req = `# Online Edit\n${w} ${h}\n\n`
@@ -60,23 +61,24 @@ export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8
   }
 
   // Send data to solver
-  let response = await fetch(solverUrl, {
-    method: "post",
-    body: req
-  })
+  const time = performance.now()
+  let response = await fetch(solverUrl, { method: "post", body: req, signal: AbortSignal.timeout(60000) })
+  if (!response.ok) {
+    console.error("Solver failed to respond")
+    return {horiStates, vertStates, solvable: false}
+  }
   // Parse response
-  let data = await response.json()
-  console.log(data)
+  let data: string = await response.json()
+  let solvable = !data.includes("Invalid puzzle")
+  console.log("Solver time:", performance.now() - time)
 
   let lines = data.split('\n').filter(x => x.length > 0)
-  const [hStates, vStates] = [new Int8Array(eRows * eCols), new Int8Array(eRows * eCols)]
   let hLines = lines.filter(l => l[0] == '.')
   let vLines = lines.filter(l => l[0] == '|' || l[0] == 'x')
-  console.log(hLines, vLines, lines)
 
   const dict: Record<string, number> = {
     '.': eStates.none,
-    'x': eStates.autoCrossed,
+    'x': eStates.none,
     '|': eStates.selected,
     '-': eStates.selected
   }
@@ -84,14 +86,14 @@ export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8
   for (let x = 0; x < eRows; x++) {
     for (let y = 0; y < eCols; y++) {
       try {
-        hStates[y * eCols + x] = dict[hLines[y][x * 4 + 2]]
+        horiStates[y * eCols + x] = dict[hLines[y][x * 4 + 2]]
       } catch (e) {}
       try {
-        vStates[y * eCols + x] = dict[vLines[y][x * 4]]
+        vertStates[y * eCols + x] = dict[vLines[y][x * 4]]
       } catch (e) {}
     }
   }
 
-  return [hStates, vStates]
+  return {horiStates, vertStates, solvable}
 }
 
