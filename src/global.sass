@@ -41,7 +41,7 @@ $color-cross: #ff7f7f
     height: 4px
 
   &.selected
-    background: $color-line
+    background: var(--c)
 
   &.crossed:before, &.auto-crossed:before
     content: "x"
@@ -51,6 +51,9 @@ $color-cross: #ff7f7f
     top: -7px
 
   &:hover
-    background: color.scale($color-line, $alpha: -50%)
+    background: var(--c)
+    opacity: 0.5
 
-
+.color-mode .grid-line:not(.selected):not(.crossed):not(.auto-crossed)
+  background: var(--c)
+  opacity: 0.1

@@ -17,13 +17,16 @@
   const [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
 
   // Colors
-  let [hColors, vColors] = [zero8(eRows * eCols), zero8(eRows * eCols)]
-  let colors = ["#90A4AEFF"]
+  let [hColors, vColors, colors, css, ci] = [zero8(eRows * eCols), zero8(eRows * eCols), ["#90A4AE"], document.createElement('style'), 0]
+  document.head.appendChild(css)
+  const updateColors = () => css.innerHTML = colors.map((c, i) => `.grid-line.c${i} { --c: ${c} }`).join('\n')
+  updateColors()
 
   // Editing controls
   let grid: HTMLDivElement
-  const editMode = true
-  let maskMode = false
+  let [editMode, dragging] = [true, false]
+  const modes = ['line', 'mask', 'color']
+  let mode = 'line'
 
   // Checkpoints
   interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
@@ -42,6 +45,7 @@
     pt.hColors.forEach((n, idx) => hColors[idx] = n)
     pt.vColors.forEach((n, idx) => vColors[idx] = n)
     colors = pt.colors
+    updateColors()
   }
 
   // Run something on the edges of a cell
@@ -91,9 +95,19 @@
   const updateArea = Array.from({ length: 5 }, (_, i) => Array.from({ length: 5 }, (_, j) =>
       [i - 2, j - 2, +(Math.abs(i - 2) == 2 || Math.abs(j - 2) == 2)])).flat()
 
+  // Called when the user starts dragging
+  function startDrag(event: MouseEvent) {
+    if (mode === 'mask') return
+    dragging = true
+  }
+
   // Called when the user clicks on the grid
   function clickDiv(event: MouseEvent) {
-    if (maskMode) return
+    if (mode === 'mask') return
+
+    // Dragging is only for applying colors for now
+    const [move, color] = [event.type === 'mousemove', mode === 'color']
+    if (move && !color) return
 
     // Compute the x and y coordinates of the clicked cell
     const rect = grid.getBoundingClientRect()
@@ -109,9 +123,19 @@
     const idx = (sy + osy) * eCols + (sx + osx)
 
     // Flip the state of the edge
-    const state = event.type === 'click' ? 1 : 2
-    if (vertical) vStates[idx] = vStates[idx] === state ? 0 : state
-    else hStates[idx] = hStates[idx] === state ? 0 : state
+    const state = event.type === 'contextmenu' ? 2 : 1
+    if (color) {
+      // Press shift to select the entire block
+      if (event.shiftKey) {
+
+      } 
+      if (vertical) vColors[idx] = ci
+      else hColors[idx] = ci
+    }
+    else {
+      if (vertical) vStates[idx] = vStates[idx] !== state ? state : 0
+      else hStates[idx] = hStates[idx] !== state ? state : 0
+    }
 
     // Check the validity of the clicked cell and its neighbors (check 5x5 but clean only 3x3)
     updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(sx + dx, sy + dy))
@@ -142,7 +166,7 @@
 
   // Mask the numbers
   function editModeClickNumber(event: MouseEvent, x: number, y: number) {
-    if (!maskMode) return
+    if (mode !== 'mask') return
     nMask[y * cols + x] = nMask[y * cols + x] === 0 ? 1 : 0
     updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(x + dx, y + dy))
     updateArea.forEach(([dx, dy, _]) => checkPos(x + dx, y + dy))
@@ -178,7 +202,7 @@
   }
 </script>
 
-<main>
+<main class:color-mode={mode === 'color'}>
   <div class="heading">
     <img src={viteLogo} class="logo" alt="Vite Logo" />
     <span class="title">Slither Link</span>
@@ -188,6 +212,7 @@
 
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
+       on:mousedown={startDrag} on:mousemove={e => dragging && clickDiv(e)} on:mouseup={() => dragging = false}
        bind:this={grid}>
     {#each range(rows) as y}
       {#each range(cols) as x}
@@ -209,7 +234,7 @@
 
   {#if editMode}
     <div class="btn-div">
-      {#if maskMode}
+      {#if mode === 'mask'}
         <button on:click={() => {
            solve(rows, cols, numbers, nMask).then(({horiStates, vertStates}) => {
              horiStates.forEach((st, idx) => hStates[idx] = st)
@@ -227,8 +252,20 @@
         <button on:click={() => alert("TODO")}>Gen Numbers</button>
         <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       {/if}
-      <button on:click={() => maskMode = !maskMode}>{maskMode ? "Line Mode" : "Mask Mode"}</button>
+      <button on:click={() => mode = modes[(modes.indexOf(mode) + 1) % modes.length]}>Mode: {mode}</button>
     </div>
+
+    <!-- Edit Colors (input for now, maybe a color picker later) -->
+    {#if mode === 'color'}
+      <div class="btn-div">
+        <button on:click={() => colors = [...colors, "#90A4AE"]}>+</button>
+        {#each colors as color, idx}
+          <button class="color-picker" on:click={() => ci = idx} aria-label="color" class:selected={ci === idx}>
+            <input type="color" value={color} on:input={e => { colors[idx] = e.target.value; updateColors() }}/>
+          </button>
+        {/each}
+      </div>
+    {/if}
   {/if}
 
   <!-- Add Checkpoint -->
@@ -276,5 +313,20 @@
     display: flex
     gap: 1em
     flex-wrap: wrap
-    justify-content: center
+    place-items: center
+
+  .color-picker
+    display: flex
+    flex-direction: column
+    padding: 1em 0 0 0
+    overflow: hidden
+    height: 42px
+    width: 30px
+
+    &.selected
+      border-color: #646cff
+
+    input
+      padding: 0
+      border: 0
 </style>
