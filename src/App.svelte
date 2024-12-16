@@ -34,14 +34,34 @@
   }
 
   // Positions for click handling
-  function clickDiv(event: MouseEvent) {
-    const target = event.target as HTMLElement
-    console.log(target)
+  const borders = [
+    // [offset x, offset y, horizontal/vertical], [center rel pos x, rel pos y]
+    [[0, 0, 0], [cfg.totalW / 2, 0]],
+    [[0, 0, 1], [0, cfg.totalW / 2]],
+    [[0, 1, 0], [cfg.totalW / 2, cfg.totalW]],
+    [[1, 0, 1], [cfg.totalW, cfg.totalW / 2]]
+  ]
 
+  function clickDiv(event: MouseEvent) {
     // Compute the x and y coordinates of the clicked cell
-    const rect = target.getBoundingClientRect()
-    const x = Math.floor((event.clientX - rect.left) / cfg.totalW)
-    console.log(rect)
+    const rect = grid.getBoundingClientRect()
+    const [fx, fy] = [(event.clientX - rect.left), (event.clientY - rect.top)]
+    const [sx, sy] = [Math.floor(fx / cfg.totalW), Math.floor(fy / cfg.totalW)]
+    const [ofx, ofy] = [fx - sx * cfg.totalW, fy - sy * cfg.totalW] // Offset from the top left corner
+
+    // Find the border that's closest to the click
+    const [osx, osy, vertical] = borders[borders.reduce((acc, [_, [cx, cy]], idx) => {
+      const [ox, oy] = [Math.abs(cx - ofx), Math.abs(cy - ofy)]
+      return (ox + oy < acc[1]) ? [idx, ox + oy] : acc
+    }, [0, Infinity])[0]][0];
+    const idx = (sy + osy) * eCols + (sx + osx)
+    const state = event.type === 'click' ? 1 : 2
+
+    // if (vertical) vedgeStates[idx] = (vedgeStates[idx] + 1) % 3
+    if (vertical) vedgeStates[idx] = vedgeStates[idx] === state ? 0 : state
+    else hedgeStates[idx] = hedgeStates[idx] === state ? 0 : state
+
+    console.log(fx, fy, sx, sy, ofx, ofy)
     event.preventDefault()
   }
 </script>
@@ -55,7 +75,7 @@
   {#if editMode}<div class="edit-mode-banner">Edit Mode</div>{/if}
 
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
-       on:click={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
+       on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
        bind:this={grid}>
     {#each range(rows) as y}
       {#each range(cols) as x}
