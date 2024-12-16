@@ -95,14 +95,13 @@
   if (editMode) {
     cat.solution.forEach(edge => {
       const [ sx, sy, ex, _ ] = edge
-      const isVertical = sx === ex
-      if (isVertical) {
+      if (sx === ex) { // Vertical edge
         // The commented lines will show the solution (edges)
-        // vedgeStates[sy * (eCols) + sx] = 1
+        // vStates[sy * (eCols) + sx] = 1
         if (ex != cols) numbers[sy * cols + sx] += 1
         if (sx != 0) numbers[sy * cols + sx - 1] += 1
       } else {
-        // hedgeStates[sy * (eCols) + sx] = 1
+        // hStates[sy * (eCols) + sx] = 1
         if (ex != rows) numbers[sy * cols + sx] += 1
         if (sx != 0) numbers[(sy - 1) * cols + sx] += 1
       }
