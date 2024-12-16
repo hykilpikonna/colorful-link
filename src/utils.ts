@@ -22,6 +22,7 @@ export const sty = (styles: any) => Object.entries(styles).map(([k, v]) => `${k}
 export const pos = (x: number, y: number) => `top:${y}px;left:${x}px;`
 export const randInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
 export const range = (n: number) => Array.from({length: n}, (_, i) => i)
+export const zero8 = (n: number) => new Int8Array(n).fill(0)
 
 // Json with TypedArray serialization
 export const JsonTy = {
@@ -39,5 +40,14 @@ export const JsonTy = {
       return new globalThis[v.type](v.data);
     }
     return v; // For all other data types, keep it as is
-  })
+  }),
+
+  download: (obj: any, name: string) => {
+    const blob = new Blob([JsonTy.stringify(obj)], {type: 'application/json'})
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = name
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
 }

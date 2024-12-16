@@ -2,33 +2,46 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, JsonTy, nStates, randInt, range } from "./utils";
+  import { cfg, eStates, JsonTy, nStates, randInt, range, zero8 } from "./utils";
   import Line from "./lib/Line.svelte";
   import { cat } from "./examples";
   import { solve } from "./solver";
 
+  type i8s = Int8Array
+
+  // Main variables
   const [rows, cols] = [40, 40]
   const [eRows, eCols] = [rows + 1, cols + 1]
-  let numbers = Int8Array.from({ length: rows * cols }, () => 0)
-  let numberMask = Int8Array.from({ length: rows * cols }, () => 0)
-  let numberState = Int8Array.from({ length: rows * cols }, () => 0)
-  let hStates = Int8Array.from({ length: eRows * eCols }, () => 0)
-  let vStates = Int8Array.from({ length: eRows * eCols }, () => 0)
-  const solutionHStates = hStates.slice()
-  const solutionVStates = vStates.slice()
+  let [numbers, numberMask, numberState] = [zero8(rows * cols), zero8(rows * cols), zero8(rows * cols)]
+  let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
+  const [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
 
+  // Colors
+  let [hColors, vColors] = [zero8(eRows * eCols), zero8(eRows * eCols)]
+  let colors = ["#90A4AEFF"]
+
+  // Editing controls
   let grid: HTMLDivElement
   const editMode = true
   let maskMode = false
 
-  interface Checkpoint {
-    hStates: Int8Array
-    vStates: Int8Array
-    numbers: Int8Array
-    numberMask: Int8Array
+  // Checkpoints
+  interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, numberMask: i8s }
+  const ckpt = () => ({hStates, vStates, numbers, numberMask, hColors, vColors})
+  const loadPt = () => JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
+  let ckpts: Checkpoint[] = loadPt()
+  const savePt = (fn: () => any) => () => { fn()
+    localStorage.setItem('slitherlink-checkpoints', JsonTy.stringify(ckpts))
+    ckpts = loadPt()
   }
-  let checkpoints: Checkpoint[] = JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
-  const saveCheckpoints = () => localStorage.setItem('slitherlink-checkpoints', JsonTy.stringify(checkpoints))
+  const restorePt = (pt: Checkpoint) => {
+    pt.hStates.forEach((st, idx) => hStates[idx] = st)
+    pt.vStates.forEach((st, idx) => vStates[idx] = st)
+    pt.numbers.forEach((n, idx) => numbers[idx] = n)
+    pt.numberMask.forEach((n, idx) => numberMask[idx] = n)
+    pt.hColors.forEach((n, idx) => hColors[idx] = n)
+    pt.vColors.forEach((n, idx) => vColors[idx] = n)
+  }
 
   // Run something on the edges of a cell
   function updateEdges(x: number, y: number, condition: (st: number) => boolean, op: (st: number) => number) {
@@ -179,19 +192,18 @@
        bind:this={grid}>
     {#each range(rows) as y}
       {#each range(cols) as x}
-        <Number x={x} y={y} n={numbers[y * cols + x]}
-                masked={numberMask[y * cols + x] === 1} state={numberState[y * cols + x]}
-                on:click={(e) => editModeClickNumber(e, x, y)}/>
+        <Number x={x} y={y} n={numbers[y * cols + x]} on:click={(e) => editModeClickNumber(e, x, y)}
+                masked={numberMask[y * cols + x] === 1} state={numberState[y * cols + x]}/>
       {/each}
     {/each}
     {#each range(eRows) as y}
       {#each range(cols) as x}
-        <Line sx={x} sy={y} state={hStates[y * eCols + x]} />
+        <Line sx={x} sy={y} state={hStates[y * eCols + x]} colorIdx="{hColors[y * eCols + x]}"/>
       {/each}
     {/each}
     {#each range(rows) as y}
       {#each range(eCols) as x}
-        <Line sx={x} sy={y} vertical state={vStates[y * eCols + x]} />
+        <Line sx={x} sy={y} vertical state={vStates[y * eCols + x]} colorIdx="{vColors[y * eCols + x]}"/>
       {/each}
     {/each}
   </div>
@@ -201,7 +213,6 @@
       {#if maskMode}
         <button on:click={() => {
            solve(rows, cols, numbers, numberMask).then(({horiStates, vertStates}) => {
-             console.log(horiStates, vertStates)
              horiStates.forEach((st, idx) => hStates[idx] = st)
              vertStates.forEach((st, idx) => vStates[idx] = st)
            })
@@ -210,26 +221,12 @@
         <button on:click={() => editModeReduce()}>Reduce</button>
       {:else}
         <button on:click={() => {
-          numbers = Int8Array.from({ length: rows * cols }, () => 0)
+          [numbers, numberState] = [zero8(rows * cols), zero8(rows * cols)]
           numberMask = Int8Array.from({ length: rows * cols }, () => 1)
-          numberState = Int8Array.from({ length: rows * cols }, () => 0)
         }}>Clear Numbers</button>
 
-        <button on:click={() => {
-          alert("TODO")
-        }}>Gen Numbers</button>
-
-        <button on:click={() => {
-          // Download a json of the current hStates, vStates, numbers, numberMask
-          const data = {hStates, vStates, numbers, numberMask}
-          const blob = new Blob([JSON.stringify(data)], {type: 'application/json'})
-          const url = URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url
-          a.download = 'slitherlink.json'
-          a.click()
-          URL.revokeObjectURL(url)
-        }}>Save Routes</button>
+        <button on:click={() => alert("TODO")}>Gen Numbers</button>
+        <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       {/if}
       <button on:click={() => maskMode = !maskMode}>Toggle Mask Mode ({maskMode ? "off" : "on"})</button>
     </div>
@@ -237,27 +234,13 @@
     <div>Checkpoints</div>
     <!-- Add Checkpoint -->
     <div class="btn-div">
-      <button on:click={() => {
-        checkpoints.push({hStates: hStates.slice(), vStates: vStates.slice(), numbers: numbers.slice(), numberMask: numberMask.slice()})
-        saveCheckpoints()
-      }}>Add</button>
-      <button on:click={() => {
-        checkpoints[checkpoints.length - 1] = {hStates: hStates.slice(), vStates: vStates.slice(), numbers: numbers.slice(), numberMask: numberMask.slice()}
-        saveCheckpoints()
-      }}>Overwrite</button>
-      <button on:click={() => {
-        checkpoints.pop()
-        saveCheckpoints()
-      }}>Remove</button>
+      <button on:click={savePt(() => ckpts.push(ckpt()))}>Add</button>
+      <button on:click={savePt(() => ckpts[ckpts.length - 1] = ckpt())}>Overwrite</button>
+      <button on:click={savePt(() => ckpts.pop())}>Remove</button>
     </div>
     <div class="btn-div">
-      {#each checkpoints as checkpoint, i}
-        <button on:click={() => {
-          checkpoint.hStates.forEach((st, idx) => hStates[idx] = st)
-          checkpoint.vStates.forEach((st, idx) => vStates[idx] = st)
-          checkpoint.numbers.forEach((n, idx) => numbers[idx] = n)
-          checkpoint.numberMask.forEach((n, idx) => numberMask[idx] = n)
-        }}>{i + 1}</button>
+      {#each ckpts as cp, i}
+        <button on:click={() => restorePt(cp)}>{i + 1}</button>
       {/each}
     </div>
   {/if}
