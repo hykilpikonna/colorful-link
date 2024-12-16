@@ -62,38 +62,44 @@ export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8
 
   // Send data to solver
   const time = performance.now()
-  let response = await fetch(solverUrl, { method: "post", body: req, signal: AbortSignal.timeout(60000) })
-  if (!response.ok) {
+  try {
+    let response = await fetch(solverUrl, { method: "post", body: req, signal: AbortSignal.timeout(60000) })
+    if (!response.ok) {
+      console.error("Solver failed to respond")
+      return {horiStates, vertStates, solvable: false}
+    }
+    // Parse response
+    let data: string = await response.json()
+    let solvable = !data.includes("Invalid puzzle")
+    console.log("Solver time:", performance.now() - time)
+  
+    let lines = data.split('\n').filter(x => x.length > 0)
+    let hLines = lines.filter(l => l[0] == '.')
+    let vLines = lines.filter(l => l[0] == '|' || l[0] == 'x')
+  
+    const dict: Record<string, number> = {
+      '.': eStates.none,
+      'x': eStates.none,
+      '|': eStates.selected,
+      '-': eStates.selected
+    }
+  
+    for (let x = 0; x < eRows; x++) {
+      for (let y = 0; y < eCols; y++) {
+        try {
+          horiStates[y * eCols + x] = dict[hLines[y][x * 4 + 2]]
+        } catch (e) {}
+        try {
+          vertStates[y * eCols + x] = dict[vLines[y][x * 4]]
+        } catch (e) {}
+      }
+    }
+  
+    return {horiStates, vertStates, solvable}
+  }
+  catch (e) {
     console.error("Solver failed to respond")
     return {horiStates, vertStates, solvable: false}
   }
-  // Parse response
-  let data: string = await response.json()
-  let solvable = !data.includes("Invalid puzzle")
-  console.log("Solver time:", performance.now() - time)
-
-  let lines = data.split('\n').filter(x => x.length > 0)
-  let hLines = lines.filter(l => l[0] == '.')
-  let vLines = lines.filter(l => l[0] == '|' || l[0] == 'x')
-
-  const dict: Record<string, number> = {
-    '.': eStates.none,
-    'x': eStates.none,
-    '|': eStates.selected,
-    '-': eStates.selected
-  }
-
-  for (let x = 0; x < eRows; x++) {
-    for (let y = 0; y < eCols; y++) {
-      try {
-        horiStates[y * eCols + x] = dict[hLines[y][x * 4 + 2]]
-      } catch (e) {}
-      try {
-        vertStates[y * eCols + x] = dict[vLines[y][x * 4]]
-      } catch (e) {}
-    }
-  }
-
-  return {horiStates, vertStates, solvable}
 }
 
