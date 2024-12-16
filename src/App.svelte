@@ -12,7 +12,7 @@
   // Main variables
   const [rows, cols] = [40, 40]
   const [eRows, eCols] = [rows + 1, cols + 1]
-  let [numbers, numberMask, numberState] = [zero8(rows * cols), zero8(rows * cols), zero8(rows * cols)]
+  let [numbers, nMask, numberState] = [zero8(rows * cols), zero8(rows * cols), zero8(rows * cols)]
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
   const [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
 
@@ -26,8 +26,8 @@
   let maskMode = false
 
   // Checkpoints
-  interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, numberMask: i8s }
-  const ckpt = () => ({hStates, vStates, numbers, numberMask, hColors, vColors})
+  interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
+  const ckpt = () => ({hStates, vStates, numbers, nMask, hColors, vColors, colors})
   const loadPt = () => JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
   let ckpts: Checkpoint[] = loadPt()
   const savePt = (fn: () => any) => () => { fn()
@@ -38,9 +38,10 @@
     pt.hStates.forEach((st, idx) => hStates[idx] = st)
     pt.vStates.forEach((st, idx) => vStates[idx] = st)
     pt.numbers.forEach((n, idx) => numbers[idx] = n)
-    pt.numberMask.forEach((n, idx) => numberMask[idx] = n)
+    pt.nMask.forEach((n, idx) => nMask[idx] = n)
     pt.hColors.forEach((n, idx) => hColors[idx] = n)
     pt.vColors.forEach((n, idx) => vColors[idx] = n)
+    colors = pt.colors
   }
 
   // Run something on the edges of a cell
@@ -64,7 +65,7 @@
   }
 
   function checkPos(x: number, y: number) {
-    if (!inBounds(x, y) || numberMask[y * cols + x] === 1) return
+    if (!inBounds(x, y) || nMask[y * cols + x] === 1) return
 
     // Count the number of neighboring edges
     let count = 0
@@ -142,7 +143,7 @@
   // Mask the numbers
   function editModeClickNumber(event: MouseEvent, x: number, y: number) {
     if (!maskMode) return
-    numberMask[y * cols + x] = numberMask[y * cols + x] === 0 ? 1 : 0
+    nMask[y * cols + x] = nMask[y * cols + x] === 0 ? 1 : 0
     updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(x + dx, y + dy))
     updateArea.forEach(([dx, dy, _]) => checkPos(x + dx, y + dy))
   }
@@ -156,26 +157,24 @@
     const masked = []
     while (masked.length < n) {
       let idx = randInt(0, rows * cols)
-      if (numberMask[idx] === 1) continue
-      // Reduce zeros first
-      if (numbers[idx] !== 0 && Math.random() < zeroProb) continue
-      numberMask[idx] = 1
+      if (nMask[idx] === 1 || (numbers[idx] !== 0 && Math.random() < zeroProb)) continue
+      nMask[idx] = 1
       masked.push(idx)
     }
     console.log(masked.map(idx => numbers[idx]))
-    let {horiStates, vertStates, solvable} = await solve(rows, cols, numbers, numberMask)
+    let {horiStates, vertStates, solvable} = await solve(rows, cols, numbers, nMask)
     // Unsolvable or doesn't match the solution
     if (!solvable ||
         horiStates.some((st, idx) => (st === eStates.selected) !== (solutionHStates[idx] === eStates.selected)) ||
         vertStates.some((st, idx) => (st === eStates.selected) !== (solutionVStates[idx] === eStates.selected))) {
-      masked.forEach(idx => numberMask[idx] = 0)
+      masked.forEach(idx => nMask[idx] = 0)
       setTimeout(() => editModeReduce(n - 1, zeroProb - 0.005), 100)
     } else {
       horiStates.forEach((st, idx) => hStates[idx] = st)
       vertStates.forEach((st, idx) => vStates[idx] = st)
       setTimeout(() => editModeReduce(n, zeroProb - 0.005), 100)
     }
-    console.log(numberMask)
+    console.log(nMask)
   }
 </script>
 
@@ -193,7 +192,7 @@
     {#each range(rows) as y}
       {#each range(cols) as x}
         <Number x={x} y={y} n={numbers[y * cols + x]} on:click={(e) => editModeClickNumber(e, x, y)}
-                masked={numberMask[y * cols + x] === 1} state={numberState[y * cols + x]}/>
+                masked={nMask[y * cols + x] === 1} state={numberState[y * cols + x]}/>
       {/each}
     {/each}
     {#each range(eRows) as y}
@@ -212,7 +211,7 @@
     <div class="btn-div">
       {#if maskMode}
         <button on:click={() => {
-           solve(rows, cols, numbers, numberMask).then(({horiStates, vertStates}) => {
+           solve(rows, cols, numbers, nMask).then(({horiStates, vertStates}) => {
              horiStates.forEach((st, idx) => hStates[idx] = st)
              vertStates.forEach((st, idx) => vStates[idx] = st)
            })
@@ -222,7 +221,7 @@
       {:else}
         <button on:click={() => {
           [numbers, numberState] = [zero8(rows * cols), zero8(rows * cols)]
-          numberMask = Int8Array.from({ length: rows * cols }, () => 1)
+          nMask = Int8Array.from({ length: rows * cols }, () => 1)
         }}>Clear Numbers</button>
 
         <button on:click={() => alert("TODO")}>Gen Numbers</button>
