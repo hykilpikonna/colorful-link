@@ -5,11 +5,12 @@
   import { cfg, eStates, nStates, randInt, range } from "./utils";
   import Line from "./lib/Line.svelte";
   import { cat } from "./examples";
+  import { solve } from "./solver";
 
   const [rows, cols] = [40, 40]
   const [eRows, eCols] = [rows + 1, cols + 1]
   let numbers = Int8Array.from({ length: rows * cols }, () => 0)
-  let numberMasked = Int8Array.from({ length: rows * cols }, () => 1)
+  let numberMask = Int8Array.from({ length: rows * cols }, () => 0)
   let numberState = Int8Array.from({ length: rows * cols }, () => 0)
   let hStates = Int8Array.from({ length: eRows * eCols }, () => 0)
   let vStates = Int8Array.from({ length: eRows * eCols }, () => 0)
@@ -38,7 +39,7 @@
   }
 
   function checkPos(x: number, y: number) {
-    if (!inBounds(x, y)) return
+    if (!inBounds(x, y) || numberMask[y * cols + x] === 1) return
 
     // Count the number of neighboring edges
     let count = 0
@@ -66,6 +67,8 @@
 
   // Called when the user clicks on the grid
   function clickDiv(event: MouseEvent) {
+    if (editMode) return
+
     // Compute the x and y coordinates of the clicked cell
     const rect = grid.getBoundingClientRect()
     const [fx, fy] = [(event.clientX - rect.left), (event.clientY - rect.top)]
@@ -94,7 +97,7 @@
   // Editor mode
   if (editMode) {
     cat.solution.forEach(edge => {
-      const [ sx, sy, ex, _ ] = edge
+      const [ sx, sy, ex, ey ] = edge
       if (sx === ex) { // Vertical edge
         // The commented lines will show the solution (edges)
         // vStates[sy * (eCols) + sx] = 1
@@ -102,13 +105,41 @@
         if (sx != 0) numbers[sy * cols + sx - 1] += 1
       } else {
         // hStates[sy * (eCols) + sx] = 1
-        if (ex != rows) numbers[sy * cols + sx] += 1
-        if (sx != 0) numbers[(sy - 1) * cols + sx] += 1
+        if (ey != rows) numbers[sy * cols + sx] += 1
+        if (sy != 0) numbers[(sy - 1) * cols + sx] += 1
       }
     })
 
+//     const data = `....02....
+// 230....223
+// ...3..3...
+// 3...22...1
+// .2.2..0.2.
+// .2.3..3.3.
+// 3...10...2
+// ...2..3...
+// 303....331
+// ....02....`
+//     const lines = data.split('\n')
+//     numberMask = Int8Array.from({ length: rows * cols }, () => 1)
+//     lines.forEach((line, y) => {
+//       line.split('').forEach((ch, x) => {
+//         if (ch === '.') return
+//         numbers[y * cols + x] = parseInt(ch)
+//         numberMask[y * cols + x] = 0
+//       })
+//     })
+
     // Check the validity of all cells
     range(rows).forEach(y => range(cols).forEach(x => checkPos(x, y)))
+  }
+
+  // Mask the numbers
+  function editModeClickNumber(event: MouseEvent, x: number, y: number) {
+    if (!editMode) return
+    numberMask[y * cols + x] = numberMask[y * cols + x] === 0 ? 1 : 0
+    updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(x + dx, y + dy))
+    updateArea.forEach(([dx, dy, _]) => checkPos(x + dx, y + dy))
   }
 </script>
 
@@ -126,7 +157,8 @@
     {#each range(rows) as y}
       {#each range(cols) as x}
         <Number x={x} y={y} n={numbers[y * cols + x]}
-                masked={numberMasked[y * cols + x] === 0} state={numberState[y * cols + x]} />
+                masked={numberMask[y * cols + x] === 1} state={numberState[y * cols + x]}
+                on:click={(e) => editModeClickNumber(e, x, y)}/>
       {/each}
     {/each}
     {#each range(eRows) as y}
@@ -140,6 +172,18 @@
       {/each}
     {/each}
   </div>
+
+  {#if editMode}
+    <div>
+      <button on:click={() => {
+         solve(rows, cols, numbers, numberMask).then(([newHStates, newVStates]) => {
+           console.log(newHStates, newVStates)
+           newHStates.forEach((st, idx) => hStates[idx] = st)
+           newVStates.forEach((st, idx) => vStates[idx] = st)
+         })
+      }}>Solve</button>
+    </div>
+  {/if}
 </main>
 
 <style lang="sass">
@@ -148,6 +192,7 @@
     flex-direction: column
     gap: 1em
     padding: 1em
+    place-items: center
 
   .heading
     display: flex

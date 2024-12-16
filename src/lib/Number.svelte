@@ -10,7 +10,7 @@
 </script>
 
 <div class="grid-number" style="{styles}"
-     class:error={state === nStates.error} class:complete={state === nStates.complete}>
+     class:error={state === nStates.error} class:complete={state === nStates.complete} on:click>
   {#if !masked}
     {n % 4}
   {/if}
