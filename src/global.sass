@@ -1,0 +1,56 @@
+@use "sass:color"
+
+$color-dot: #aaa
+$color-line: #90A4AEFF
+$color-cross: #ff7f7f
+
+@debug color.scale($color-line, $alpha: -30%)
+
+.puzzle-grid
+  position: relative
+  user-select: none
+
+.grid-number
+  position: absolute
+  width: 20px
+  height: 20px
+  text-align: center
+  font-size: 11px
+
+  &.error
+    color: $color-cross
+
+  &.complete
+    opacity: 0.5
+
+.grid-line
+  position: absolute
+
+  &.vertical
+    width: 4px
+    height: 20px
+    border-top: 4px solid $color-dot
+    border-bottom: 4px solid $color-dot
+
+    &.crossed:before, &.auto-crossed:before
+      left: 0
+      top: 2px
+
+  &:not(.vertical)
+    width: 24px
+    height: 4px
+
+  &.selected
+    background: $color-line
+
+  &.crossed:before, &.auto-crossed:before
+    content: "x"
+    font-size: 10px
+    color: $color-cross
+    position: absolute
+    top: -7px
+
+  &:hover
+    background: color.scale($color-line, $alpha: -50%)
+
+
