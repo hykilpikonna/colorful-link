@@ -6,6 +6,7 @@ const N = ({className, value, setNum, editorMode, ...props}) => {
 
     return (<span className={multiStyles(styles, ["number", className])} {...props}>
         {editorMode && <input
+            disabled
             onChange={(e) => setNum(parseInt(e.target.value))}
             value={v}
         /> || v}

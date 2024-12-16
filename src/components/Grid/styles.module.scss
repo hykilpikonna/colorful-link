@@ -191,6 +191,7 @@ $animationFillMode: forwards;
   justify-content: center;
   height: $edgeLength;
   width: $edgeLength;
+  user-select: none;
 
   .invalid {
     color: $invalidColor;
