@@ -185,12 +185,12 @@
       {/each}
     {/each}
     {#each range(eRows) as y}
-      {#each range(eCols) as x}
+      {#each range(cols) as x}
         <Line sx={x} sy={y} state={hStates[y * eCols + x]} />
       {/each}
     {/each}
     {#each range(rows) as y}
-      {#each range(cols + 1) as x}
+      {#each range(eCols) as x}
         <Line sx={x} sy={y} vertical state={vStates[y * eCols + x]} />
       {/each}
     {/each}
