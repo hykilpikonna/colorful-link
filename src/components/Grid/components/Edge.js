@@ -1,4 +1,3 @@
-import * as React from "react";
 import Cross from "./Cross";
 import Line from "./Line";
 

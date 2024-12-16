@@ -1,4 +1,3 @@
-import * as React from "react";
 import {EDGE_STATE} from "../../../constants";
 import {findNeighbor, isNodeActive} from "../../../utils";
 import Edge from "./Edge";

@@ -1,7 +1,5 @@
-import * as React from "react";
 import {EDGE_STATE} from "../../constants";
-import {areValid, findNeighbor, getNeighbors, multiStyles} from "../../utils";
-import Controls from "../Controls";
+import {findNeighbor, getNeighbors, multiStyles} from "../../utils";
 import LineRow from "./components/LineRow";
 import NumberRow from "./components/NumberRow";
 import styles from "./styles.module.scss";

@@ -1,9 +1,5 @@
 import * as React from "react";
-import {
-  EXAMPLE_GRID_PROPS,
-  NOT_ALLOWED_1_GRID_PROPS,
-  NOT_ALLOWED_2_GRID_PROPS,
-} from "../../constants";
+import {EXAMPLE_GRID_PROPS, NOT_ALLOWED_1_GRID_PROPS, NOT_ALLOWED_2_GRID_PROPS,} from "../../constants";
 import {getMatrix} from "../../utils";
 import Grid from "../Grid";
 

@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export const Undo = ({className, onClick}) => {
   return (
     <svg

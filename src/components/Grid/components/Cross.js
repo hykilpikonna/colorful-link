@@ -1,4 +1,3 @@
-import * as React from "react";
 import {multiStyles} from "../../../utils";
 import styles from "../styles.module.scss";
 
