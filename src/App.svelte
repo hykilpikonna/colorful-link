@@ -2,7 +2,7 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, nStates, randInt, range } from "./utils";
+  import { cfg, eStates, JsonTy, nStates, randInt, range } from "./utils";
   import Line from "./lib/Line.svelte";
   import { cat } from "./examples";
   import { solve } from "./solver";
@@ -14,9 +14,21 @@
   let numberState = Int8Array.from({ length: rows * cols }, () => 0)
   let hStates = Int8Array.from({ length: eRows * eCols }, () => 0)
   let vStates = Int8Array.from({ length: eRows * eCols }, () => 0)
+  const solutionHStates = hStates.slice()
+  const solutionVStates = vStates.slice()
 
   let grid: HTMLDivElement
   const editMode = true
+  let maskMode = false
+
+  interface Checkpoint {
+    hStates: Int8Array
+    vStates: Int8Array
+    numbers: Int8Array
+    numberMask: Int8Array
+  }
+  let checkpoints: Checkpoint[] = JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
+  const saveCheckpoints = () => localStorage.setItem('slitherlink-checkpoints', JsonTy.stringify(checkpoints))
 
   // Run something on the edges of a cell
   function updateEdges(x: number, y: number, condition: (st: number) => boolean, op: (st: number) => number) {
@@ -67,7 +79,7 @@
 
   // Called when the user clicks on the grid
   function clickDiv(event: MouseEvent) {
-    if (editMode) return
+    if (maskMode) return
 
     // Compute the x and y coordinates of the clicked cell
     const rect = grid.getBoundingClientRect()
@@ -100,35 +112,15 @@
       const [ sx, sy, ex, ey ] = edge
       if (sx === ex) { // Vertical edge
         // The commented lines will show the solution (edges)
-        // vStates[sy * (eCols) + sx] = 1
+        solutionVStates[sy * (eCols) + sx] = 1
         if (ex != cols) numbers[sy * cols + sx] += 1
         if (sx != 0) numbers[sy * cols + sx - 1] += 1
       } else {
-        // hStates[sy * (eCols) + sx] = 1
+        solutionHStates[sy * (eCols) + sx] = 1
         if (ey != rows) numbers[sy * cols + sx] += 1
         if (sy != 0) numbers[(sy - 1) * cols + sx] += 1
       }
     })
-
-//     const data = `....02....
-// 230....223
-// ...3..3...
-// 3...22...1
-// .2.2..0.2.
-// .2.3..3.3.
-// 3...10...2
-// ...2..3...
-// 303....331
-// ....02....`
-//     const lines = data.split('\n')
-//     numberMask = Int8Array.from({ length: rows * cols }, () => 1)
-//     lines.forEach((line, y) => {
-//       line.split('').forEach((ch, x) => {
-//         if (ch === '.') return
-//         numbers[y * cols + x] = parseInt(ch)
-//         numberMask[y * cols + x] = 0
-//       })
-//     })
 
     // Check the validity of all cells
     range(rows).forEach(y => range(cols).forEach(x => checkPos(x, y)))
@@ -136,10 +128,41 @@
 
   // Mask the numbers
   function editModeClickNumber(event: MouseEvent, x: number, y: number) {
-    if (!editMode) return
+    if (!maskMode) return
     numberMask[y * cols + x] = numberMask[y * cols + x] === 0 ? 1 : 0
     updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(x + dx, y + dy))
     updateArea.forEach(([dx, dy, _]) => checkPos(x + dx, y + dy))
+  }
+
+  async function editModeReduce(n = 20, zeroProb = 0.9) {
+    zeroProb = Math.max(0.5, zeroProb)
+    if (n === 0) return
+    console.log(n, zeroProb)
+    // On each iteration, randomly mask n numbers and try to solve the puzzle
+    // If the puzzle is solvable, continue until it's not solvable, then reduce n and unmask the last 3 numbers
+    const masked = []
+    while (masked.length < n) {
+      let idx = randInt(0, rows * cols)
+      if (numberMask[idx] === 1) continue
+      // Reduce zeros first
+      if (numbers[idx] !== 0 && Math.random() < zeroProb) continue
+      numberMask[idx] = 1
+      masked.push(idx)
+    }
+    console.log(masked.map(idx => numbers[idx]))
+    let {horiStates, vertStates, solvable} = await solve(rows, cols, numbers, numberMask)
+    // Unsolvable or doesn't match the solution
+    if (!solvable ||
+        horiStates.some((st, idx) => (st === eStates.selected) !== (solutionHStates[idx] === eStates.selected)) ||
+        vertStates.some((st, idx) => (st === eStates.selected) !== (solutionVStates[idx] === eStates.selected))) {
+      masked.forEach(idx => numberMask[idx] = 0)
+      setTimeout(() => editModeReduce(n - 1, zeroProb - 0.005), 100)
+    } else {
+      horiStates.forEach((st, idx) => hStates[idx] = st)
+      vertStates.forEach((st, idx) => vStates[idx] = st)
+      setTimeout(() => editModeReduce(n, zeroProb - 0.005), 100)
+    }
+    console.log(numberMask)
   }
 </script>
 
@@ -175,13 +198,67 @@
 
   {#if editMode}
     <div>
+      {#if maskMode}
+        <button on:click={() => {
+           solve(rows, cols, numbers, numberMask).then(({horiStates, vertStates}) => {
+             console.log(horiStates, vertStates)
+             horiStates.forEach((st, idx) => hStates[idx] = st)
+             vertStates.forEach((st, idx) => vStates[idx] = st)
+           })
+        }}>Solve</button>
+
+        <button on:click={() => editModeReduce()}>Reduce</button>
+      {:else}
+        <button on:click={() => {
+          numbers = Int8Array.from({ length: rows * cols }, () => 0)
+          numberMask = Int8Array.from({ length: rows * cols }, () => 1)
+          numberState = Int8Array.from({ length: rows * cols }, () => 0)
+        }}>Clear Numbers</button>
+
+        <button on:click={() => {
+          alert("TODO")
+        }}>Gen Numbers</button>
+
+        <button on:click={() => {
+          // Download a json of the current hStates, vStates, numbers, numberMask
+          const data = {hStates, vStates, numbers, numberMask}
+          const blob = new Blob([JSON.stringify(data)], {type: 'application/json'})
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'slitherlink.json'
+          a.click()
+          URL.revokeObjectURL(url)
+        }}>Save Routes</button>
+      {/if}
+      <button on:click={() => maskMode = !maskMode}>Toggle Mask Mode ({maskMode ? "off" : "on"})</button>
+    </div>
+
+    <div>Checkpoints</div>
+    <!-- Add Checkpoint -->
+    <div class="btn-div">
       <button on:click={() => {
-         solve(rows, cols, numbers, numberMask).then(([newHStates, newVStates]) => {
-           console.log(newHStates, newVStates)
-           newHStates.forEach((st, idx) => hStates[idx] = st)
-           newVStates.forEach((st, idx) => vStates[idx] = st)
-         })
-      }}>Solve</button>
+        checkpoints.push({hStates: hStates.slice(), vStates: vStates.slice(), numbers: numbers.slice(), numberMask: numberMask.slice()})
+        saveCheckpoints()
+      }}>Add</button>
+      <button on:click={() => {
+        checkpoints[checkpoints.length - 1] = {hStates: hStates.slice(), vStates: vStates.slice(), numbers: numbers.slice(), numberMask: numberMask.slice()}
+        saveCheckpoints()
+      }}>Overwrite</button>
+      <button on:click={() => {
+        checkpoints.pop()
+        saveCheckpoints()
+      }}>Remove</button>
+    </div>
+    <div class="btn-div">
+      {#each checkpoints as checkpoint, i}
+        <button on:click={() => {
+          checkpoint.hStates.forEach((st, idx) => hStates[idx] = st)
+          checkpoint.vStates.forEach((st, idx) => vStates[idx] = st)
+          checkpoint.numbers.forEach((n, idx) => numbers[idx] = n)
+          checkpoint.numberMask.forEach((n, idx) => numberMask[idx] = n)
+        }}>{i + 1}</button>
+      {/each}
     </div>
   {/if}
 </main>
@@ -217,4 +294,10 @@
   .logo
     height: 3em
     padding: 1.5em
+
+  .btn-div
+    display: flex
+    gap: 1em
+    flex-wrap: wrap
+    justify-content: center
 </style>
