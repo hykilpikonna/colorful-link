@@ -4,7 +4,6 @@
   import Number from './lib/Number.svelte'
   import { cfg, eStates, JsonTy, nStates, randInt, range, zero8 } from "./utils";
   import Line from "./lib/Line.svelte";
-  import { cat } from "./examples";
   import { solve } from "./solver";
 
   type i8s = Int8Array
@@ -267,7 +266,7 @@
   <div class="btn-div">
     <button on:click={savePt(() => ckpts.push(ckpt()))}>Add</button>
     <button on:click={savePt(() => ckpts[ckpts.length - 1] = ckpt())}>Overwrite</button>
-    <button on:click={savePt(() => ckpts.pop())}>Remove</button>
+    <button on:click={savePt(() => ckpts.shift())}>Remove</button>
     {#each ckpts as cp, i}<button on:click={() => restorePt(cp)}>{i + 1}</button>{/each}
   </div>
 </main>
