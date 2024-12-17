@@ -191,7 +191,7 @@
   }
 </script>
 
-<main class:color-mode={mode === 'color'}>
+<main class:color-mode={mode === 'color'} class:colorful-cross={true}>
   <div class="heading">Azalea's Colorful Slither Link</div>
   <div class="sub-heading">
     <img src={viteLogo} alt="Logo"/>

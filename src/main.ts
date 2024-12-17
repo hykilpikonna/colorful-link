@@ -1,6 +1,6 @@
 import { mount } from 'svelte'
 import './app.sass'
-import './global.sass'
+import './puzzle.sass'
 import './fonts/caveat.sass'
 import App from './App.svelte'
 
