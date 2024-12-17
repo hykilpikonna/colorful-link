@@ -1,6 +1,6 @@
 import { eStates } from "./utils";
 
-const solverUrl = "http://10.0.0.3:8000/"
+const solverUrl = "https://slither0.hydev.org/"
 
 /*
 # EXAMPLE DATA FORMAT FOR SOLVER
@@ -63,7 +63,7 @@ export async function solve(w: number, h: number, numbers: Int8Array, mask: Int8
   // Send data to solver
   const time = performance.now()
   try {
-    let response = await fetch(solverUrl, { method: "post", body: req, signal: AbortSignal.timeout(60000) })
+    let response = await fetch(solverUrl + 'solve', { method: "post", body: req, signal: AbortSignal.timeout(60000) })
     if (!response.ok) {
       console.error("Solver failed to respond")
       return {horiStates, vertStates, solvable: false}

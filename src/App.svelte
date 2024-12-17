@@ -9,12 +9,13 @@
   const params = new URLSearchParams(location.search)
 
   // Can pass in puzzle data from props
-  interface Props { puzzleData?: { id: string, numbers: i8s, nMask: i8s, hColors: i8s, vColors: i8s, colors: string[] } }
+  interface Props { puzzleData?: { id: string, rows: number, cols: number, 
+    numbers: i8s, nMask: i8s, hColors: i8s, vColors: i8s, colors: string[] } }
   export let { puzzleData }: Props = {}
   const pid = puzzleData?.id ?? 'slitherlink'
 
   // Main variables
-  const [rows, cols] = [40, 40]
+  const [rows, cols] = [+(puzzleData?.rows ?? params.get('size') ?? 40), +(puzzleData?.cols ?? params.get('size') ?? 40)]
   const [eRows, eCols] = [rows + 1, cols + 1]
   let [numbers, nMask, numberState] = [zero8(rows * cols), zero8(rows * cols).fill(1), zero8(rows * cols)]
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
@@ -45,7 +46,7 @@
   setInterval(() => !complete && (elapsed = Date.now() - startTime), 100)
 
   // Checkpoints
-  const ckpt = () => ({hStates, vStates, numbers, nMask, hColors, vColors, colors})
+  const ckpt = () => ({rows, cols, hStates, vStates, numbers, nMask, hColors, vColors, colors})
   const loadPt = () => JsonTy.parse(localStorage.getItem(`${pid}-checkpoints`) ?? "[]")
   let ckpts: Checkpoint[] = loadPt()
   const savePt = (fn: () => any) => () => { fn()
