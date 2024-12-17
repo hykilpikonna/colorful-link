@@ -26,9 +26,8 @@
   let [editMode, dragging] = [true, false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
-  let [startTime, elapsed] = [Date.now(), 0]
-  
-  setInterval(() => elapsed = Date.now() - startTime, 100)
+  let [startTime, elapsed, complete, statusMsg] = [Date.now(), 0, false, '']
+  setInterval(() => !complete && (elapsed = Date.now() - startTime), 100)
 
   // Checkpoints
   interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
@@ -217,14 +216,14 @@
   }
 
   // Check the solution
-  function checkSolution(): string | undefined {
+  function checkSolution(): string {
     // 1. Check if all numbers are rounded with the correct number of edges
-    const rounded = range(rows).every(y => range(cols).every(x => checkPos(x, y)))
-    if (!rounded) return "Not all numbers are rounded with the correct number of edges"
+    for (let y of range(rows)) for (let x of range(cols)) if (!checkPos(x, y))
+      return `❌ Some numbers are not surrounded by the correct number of edges. (${x}, ${y})`
 
     // 2. Check if all dots have exactly 2 edges
-    const dots = range(rows).every(y => range(cols).every(x => checkDot(x, y)))
-    if (!dots) return "Not all dots have exactly 2 edges"
+    for (let y of range(rows)) for (let x of range(cols)) if (!checkDot(x, y))
+      return `❌ Some edges are not connected. (${x}, ${y})`
 
     // 3. Check if all edges are connected and there is only one loop (a single DFS should cover all edges)
     const visited = [zero8(eRows * eCols), zero8(eRows * eCols)]
@@ -244,7 +243,10 @@
     // Check if all edges selected in hStates and vStates are visited
     const allVisited = hStates.every((st, idx) => st === eStates.selected ? visited[0][idx] === 1 : true) &&
         vStates.every((st, idx) => st === eStates.selected ? visited[1][idx] === 1 : true)
-    if (!allVisited) return "Not all edges are connected"
+    if (!allVisited) return "❌ Multiple loops detected, there must be only one loop!"
+
+    complete = true
+    return `Congratulations! You've solved the puzzle in ${Fmt.duration(elapsed)}! 🎉`
   }
 </script>
 
@@ -258,6 +260,10 @@
   <div class="rules">
     Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path?
   </div>
+
+  {#if statusMsg}
+    <div class="status" class:error={!complete}>{statusMsg}</div>
+  {/if}
 
   <div class="timer">{Fmt.duration(elapsed)}</div>
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
@@ -312,7 +318,7 @@
     </div>
 
     <div class="btn-div">
-      <button on:click={() => console.log(checkSolution())}>Check Solution</button>
+      <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
     </div>
 
     <!-- Edit Colors (input for now, maybe a color picker later) -->
