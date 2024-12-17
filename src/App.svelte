@@ -26,19 +26,9 @@
   const updateColors = () => css.innerHTML = colors.map((c, i) => `.grid-line.c${i} { --c: ${c} }`).join('\n')
   updateColors()
 
-  // Load puzzle data
-  if (puzzleData) {
-    puzzleData.numbers.forEach((n, idx) => numbers[idx] = n)
-    puzzleData.nMask.forEach((n, idx) => nMask[idx] = n)
-    puzzleData.hColors.forEach((n, idx) => hColors[idx] = n)
-    puzzleData.vColors.forEach((n, idx) => vColors[idx] = n)
-    colors = puzzleData.colors
-    updateColors()
-  }
-
   // Editing controls
   let grid: HTMLDivElement
-  let [editMode, dragging] = [params.has('edit'), false]
+  let [editMode, dragging, colorfulCross] = [params.has('edit'), false, false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
   let [startTime, elapsed, complete, completedOverlay, statusMsg] = [Date.now(), 0, false, false, '']
@@ -260,12 +250,26 @@
     //     vStates.every((st, idx) => st === eStates.selected ? visited[1][idx] === 1 : true)
     // if (!allVisited) return "❌ Multiple loops detected, there must be only one loop!"
 
+    colorfulCross = true
     complete = completedOverlay = true
     return `Congratulations! You've solved the puzzle in ${Fmt.duration(elapsed)}! 🎉`
   }
+
+  // Load puzzle data
+  if (puzzleData) {
+    puzzleData.numbers.forEach((n, idx) => numbers[idx] = n)
+    puzzleData.nMask.forEach((n, idx) => nMask[idx] = n)
+    puzzleData.hColors.forEach((n, idx) => hColors[idx] = n)
+    puzzleData.vColors.forEach((n, idx) => vColors[idx] = n)
+    colors = puzzleData.colors
+    updateColors()
+
+    // Update every edge
+    range(eRows).forEach(y => range(eCols).forEach(x => checkPos(x, y)))
+  }
 </script>
 
-<main class:color-mode={mode === 'color'} class:colorful-cross={true}>
+<main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross}>
   <div class="heading">Azalea's Colorful Slither Link</div>
   <div class="sub-heading">
     <img src={viteLogo} alt="Logo"/>
@@ -357,6 +361,7 @@
   {#if !editMode}
     <div class="btn-div">
       <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
+      <button on:click={() => colorfulCross = !colorfulCross}>Switch Cross</button>
     </div>
   {/if}
 

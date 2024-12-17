@@ -5,6 +5,8 @@
 
 TODO: Remember to add a description meow
 
+TODO: Save settings, auto save progress, editor upload, mobile view
+
 ## Development
 
 [VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
