@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
@@ -385,7 +386,7 @@
   {/if}
 
   {#if completedOverlay}
-    <div class="overlay"><div>
+    <div class="overlay" transition:fade><div>
       <h2>Congrats! 🎉</h2>
 
       <p>Great job on solving your first puzzle 🧩 </p>
