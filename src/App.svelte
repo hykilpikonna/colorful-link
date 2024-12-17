@@ -252,6 +252,9 @@
     <span><a href="https://github.com/hykilpikonna/slither-link">GitHub</a> | <a href="https://aza.moe">Blog</a></span>
     <img src={svelteLogo} alt="Logo"/>
   </div>
+  <div class="rules">
+    Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path?
+  </div>
 
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
