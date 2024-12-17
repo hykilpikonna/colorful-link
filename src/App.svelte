@@ -17,7 +17,7 @@
   const pid = puzzleId ?? 'slitherlink'
 
   // Main variables
-  const [rows, cols] = [+(puzzleData?.rows ?? params.get('size') ?? 40), +(puzzleData?.cols ?? params.get('size') ?? 40)]
+  const [rows, cols] = [+(puzzleData?.rows ?? params.get('size') ?? 25), +(puzzleData?.cols ?? params.get('size') ?? 25)]
   const [eRows, eCols] = [rows + 1, cols + 1]
   let [numbers, nMask, numberState] = [zero8(rows * cols), zero8(rows * cols).fill(1), zero8(rows * cols)]
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
