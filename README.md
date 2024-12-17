@@ -1,4 +1,5 @@
-# Azalea's Colorful SlitherLink
+![](./public/meta2.png)
+
 
 [![Vite Deploy](https://github.com/hykilpikonna/colorful-link/actions/workflows/vite.yml/badge.svg)](https://github.com/hykilpikonna/colorful-link/actions/workflows/vite.yml)
 
