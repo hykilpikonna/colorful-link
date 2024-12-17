@@ -1,5 +1,6 @@
 import { mount } from 'svelte'
 import './app.sass'
+import './aqua.sass'
 import './puzzle.sass'
 import './fonts/caveat.sass'
 import Launcher from './Launcher.svelte'

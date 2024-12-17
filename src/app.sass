@@ -89,8 +89,8 @@ main
     height: 1em
 
 .rules
-  max-width: 900px
-  opacity: 0.9
+  font-size: 0.9em
+  max-width: 800px
 
 .btn-div
   display: flex
@@ -118,9 +118,6 @@ main
   font-family: 'Teko', sans-serif
   font-size: 2em
   color: colors.$accent
-  margin-bottom: -24px
-
-  // Larger gap between letters
   letter-spacing: 0.3em
 
 .status
@@ -129,30 +126,9 @@ main
   &.error
     color: colors.$cross
 
-.overlay
-  position: fixed
-  inset: 0
-
-  background-color: rgba(0, 0, 0, 0.5)
-
+.timer-line
+  // Two items, left and right
   display: flex
-  justify-content: center
-  align-items: center
-
-  z-index: 1000
-  backdrop-filter: blur(5px)
-
-  h2, p
-    user-select: none
-    margin: 0
-
-  > div
-    background-color: colors.$background
-    padding: 2rem
-    border-radius: 8px
-
-    display: flex
-    flex-direction: column
-    gap: 1rem
-
-    max-width: 400px
+  justify-content: space-between
+  gap: 10px
+  margin-bottom: -12px

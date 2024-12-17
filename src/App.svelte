@@ -2,15 +2,17 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type i8s } from "./utils";
+  import { Backend, cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type i8s, type MetaCheckpoint } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
+  import Upload from './lib/Upload.svelte';
+  import PuzzleInfo from './lib/PuzzleInfo.svelte';
 
   const params = new URLSearchParams(location.search)
   const hasTouch = Misc.hasTouch()
 
   // Can pass in puzzle data from props
-  interface Props { puzzleId?: string, puzzleData?: Checkpoint }
+  interface Props { puzzleId?: string, puzzleData?: MetaCheckpoint }
   export let { puzzleId, puzzleData }: Props = {}
   const pid = puzzleId ?? 'slitherlink'
 
@@ -53,6 +55,7 @@
     colors = pt.colors
     updateColors()
   }
+  let upload: Checkpoint | null
 
   // Run something on the edges of a cell
   function updateEdges(x: number, y: number, condition: (st: number) => boolean, op: (st: number) => number) {
@@ -198,7 +201,7 @@
     updateArea.forEach(([dx, dy, _]) => checkPos(x + dx, y + dy))
   }
 
-  async function editModeReduce(zeros: boolean = false, n = 20) {
+  async function editModeReduce(zeros: boolean = false, n = 10) {
     [solutionHStates, solutionVStates] = [hStates.slice(), vStates.slice()]
     if (n === 0) return
     // On each iteration, randomly mask n numbers and try to solve the puzzle
@@ -221,8 +224,9 @@
         vertStates.some((st, idx) => (st === eStates.selected) !== (solutionVStates[idx] === eStates.selected))) {
       masked.forEach(idx => nMask[idx] = 0)
       console.log('Solution does not match')
-      setTimeout(() => editModeReduce(zeros, n - 1), 100)
-    } else setTimeout(() => editModeReduce(zeros, n), 100)
+    }
+    //   setTimeout(() => editModeReduce(zeros, n - 1), 100)
+    // } else setTimeout(() => editModeReduce(zeros, n), 100)
     console.log(nMask)
   }
 
@@ -284,14 +288,18 @@
     <img src={svelteLogo} alt="Logo"/>
   </div>
   <div class="rules">
-    Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path?
+    Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path? <a href="https://www.youtube.com/watch?v=fqwE-CpeGS4&list=PLH_elo2OIwaBk44COgFhnJRt0-8xKMBQn">YouTube Tutorial</a>
   </div>
 
   {#if statusMsg}
     <div class="status" class:error={!complete}>{statusMsg}</div>
   {/if}
 
-  {#if !editMode}<div class="timer">{Fmt.duration(elapsed)}</div>{/if}
+  <div>
+    {#if puzzleData && !editMode}<div class="timer-line">
+      <PuzzleInfo {puzzleData}></PuzzleInfo>
+      <div class="timer">{Fmt.duration(elapsed)}</div>
+    </div>{/if}
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
        on:mousedown={startDrag} on:mousemove={e => dragging && clickDiv(e)} on:mouseup={() => dragging = false}
@@ -312,6 +320,7 @@
         <Line sx={x} sy={y} vertical state={vStates[y * eCols + x]} colorIdx="{vColors[y * eCols + x]}"/>
       {/each}
     {/each}
+  </div>
   </div>
 
   {#if editMode}
@@ -338,7 +347,6 @@
         }}>Clear Numbers</button>
 
         <button on:click={() => genNumbers()}>Gen Numbers</button>
-        <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       {/if}
       <button on:click={() => mode = modes[(modes.indexOf(mode) + 1) % modes.length]}>Mode: {mode}</button>
     </div>
@@ -354,6 +362,10 @@
         {/each}
       </div>
     {/if}
+    <div class="btn-div">
+      <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
+      <button on:click={() => upload = ckpt()}>Upload</button>
+    </div>
   {/if}
 
   <!-- Add Checkpoint -->
@@ -386,4 +398,6 @@
       <button on:click={() => completedOverlay = false}>Close</button>
     </div></div>
   {/if}
+
+  {#if upload} <Upload data={upload} callback={() => upload = null}/> {/if}
 </main>

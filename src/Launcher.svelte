@@ -5,15 +5,20 @@
   // Get puzzle id from params
   const urlParams = new URLSearchParams(window.location.search);
   const puzzleId = urlParams.get("puzzle");
+  const edit = urlParams.get("edit");
   let puzzleData: Checkpoint | null = null;
   let error: string | null = null;
 
-  if (!puzzleId) window.location.href = "/?puzzle=meow";
-  else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch(e => (error = e));
+  if (!edit) {
+    if (!puzzleId) window.location.href = "/?puzzle=meow";
+    else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch(e => (error = e));
+  }
 </script>
 
 {#if puzzleData !== null && puzzleId !== null}
   <App {puzzleData} {puzzleId} />
+{:else if edit}
+  <App></App>
 {:else}
   <div class="overlay">
     <div>

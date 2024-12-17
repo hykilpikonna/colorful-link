@@ -3,6 +3,8 @@ export type i8s = Int8Array
 export interface Checkpoint { rows: number, cols: number,
   hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
 
+export interface MetaCheckpoint extends Checkpoint { name: string, author: string, description: string, date?: string }
+
 export const cfg = {
   cellW: 20,
   lineW: 4,
@@ -75,7 +77,10 @@ export const Backend = {
     if (!r.ok) throw new Error(`Failed to get puzzle: ${r.status}`)
     return r.text()
   }).then(JsonTy.parse),
-  post: (data: Checkpoint) => fetch(`${cfg.backend}/`, { method: "post", body: JsonTy.stringify(data) }),
+  post: (data: MetaCheckpoint) => fetch(`${cfg.backend}/`, { method: "post", body: JsonTy.stringify(data) }).then(r => {
+    if (!r.ok) throw new Error(`Failed to post puzzle: ${r.status}`)
+    return r.text()
+  }).then(JsonTy.parse),
 }
 
 export const Misc = {
