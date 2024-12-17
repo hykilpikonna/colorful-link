@@ -265,7 +265,7 @@
     <div class="status" class:error={!complete}>{statusMsg}</div>
   {/if}
 
-  <div class="timer">{Fmt.duration(elapsed)}</div>
+  {#if !editMode}<div class="timer">{Fmt.duration(elapsed)}</div>{/if}
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
        on:mousedown={startDrag} on:mousemove={e => dragging && clickDiv(e)} on:mouseup={() => dragging = false}
@@ -317,9 +317,12 @@
       <button on:click={() => mode = modes[(modes.indexOf(mode) + 1) % modes.length]}>Mode: {mode}</button>
     </div>
 
-    <div class="btn-div">
-      <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
-    </div>
+    <!-- Check solution -->
+    {#if !editMode}
+      <div class="btn-div">
+        <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
+      </div>
+    {/if}
 
     <!-- Edit Colors (input for now, maybe a color picker later) -->
     {#if mode === 'color'}
