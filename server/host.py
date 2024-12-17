@@ -62,7 +62,7 @@ async def get_puzzle(id: str):
     tf = data / f"{id}.json"
     if not tf.exists():
         return {"error": "Puzzle not found"}
-    return tf.read_text()
+    return json.loads(tf.read_text())
 
 
 # Getting / redirects to main page

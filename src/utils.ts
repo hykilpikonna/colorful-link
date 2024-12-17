@@ -1,11 +1,13 @@
 
 export type i8s = Int8Array
-export interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
+export interface Checkpoint { rows: number, cols: number,
+  hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
 
 export const cfg = {
   cellW: 20,
   lineW: 4,
-  totalW: 24
+  totalW: 24,
+  backend: "https://slither0.hydev.org",
 }
 
 export const eStates = {
@@ -66,4 +68,9 @@ export const Fmt = {
     
     return `${d ? `${d}d ` : ''}${h ? `${h}:` : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   }
+}
+
+export const Backend = {
+  get: (id: string) => fetch(`${cfg.backend}/${id}`).then(r => r.text()).then(JsonTy.parse),
+  post: (data: Checkpoint) => fetch(`${cfg.backend}/`, { method: "post", body: JsonTy.stringify(data) }),
 }

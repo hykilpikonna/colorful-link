@@ -9,10 +9,9 @@
   const params = new URLSearchParams(location.search)
 
   // Can pass in puzzle data from props
-  interface Props { puzzleData?: { id: string, rows: number, cols: number, 
-    numbers: i8s, nMask: i8s, hColors: i8s, vColors: i8s, colors: string[] } }
-  export let { puzzleData }: Props = {}
-  const pid = puzzleData?.id ?? 'slitherlink'
+  interface Props { puzzleId?: string, puzzleData?: Checkpoint }
+  export let { puzzleId, puzzleData }: Props = {}
+  const pid = puzzleId ?? 'slitherlink'
 
   // Main variables
   const [rows, cols] = [+(puzzleData?.rows ?? params.get('size') ?? 40), +(puzzleData?.cols ?? params.get('size') ?? 40)]
