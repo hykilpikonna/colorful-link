@@ -2,11 +2,10 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8 } from "./utils";
+  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8, type Checkpoint } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
 
-  type i8s = Int8Array
   const params = new URLSearchParams(location.search)
 
   // Main variables
@@ -27,11 +26,10 @@
   let [editMode, dragging] = [params.has('edit'), false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
-  let [startTime, elapsed, complete, statusMsg] = [Date.now(), 0, false, '']
+  let [startTime, elapsed, complete, completedOverlay, statusMsg] = [Date.now(), 0, false, false, '']
   setInterval(() => !complete && (elapsed = Date.now() - startTime), 100)
 
   // Checkpoints
-  interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
   const ckpt = () => ({hStates, vStates, numbers, nMask, hColors, vColors, colors})
   const loadPt = () => JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
   let ckpts: Checkpoint[] = loadPt()
@@ -242,11 +240,12 @@
     console.log(visited);
 
     // Check if all edges selected in hStates and vStates are visited
-    const allVisited = hStates.every((st, idx) => st === eStates.selected ? visited[0][idx] === 1 : true) &&
-        vStates.every((st, idx) => st === eStates.selected ? visited[1][idx] === 1 : true)
-    if (!allVisited) return "❌ Multiple loops detected, there must be only one loop!"
+    // TODO: Fix this
+    // const allVisited = hStates.every((st, idx) => st === eStates.selected ? visited[0][idx] === 1 : true) &&
+    //     vStates.every((st, idx) => st === eStates.selected ? visited[1][idx] === 1 : true)
+    // if (!allVisited) return "❌ Multiple loops detected, there must be only one loop!"
 
-    complete = true
+    complete = completedOverlay = true
     return `Congratulations! You've solved the puzzle in ${Fmt.duration(elapsed)}! 🎉`
   }
 </script>
@@ -342,4 +341,17 @@
     <button on:click={savePt(() => ckpts.shift())}>Remove</button>
     {#each ckpts as cp, i}<button on:click={() => restorePt(cp)}>{i + 1}</button>{/each}
   </div>
+
+  {#if completedOverlay}
+    <div class="overlay"><div>
+      <h2>Congrats! 🎉</h2>
+
+      <p>Great job on solving your first puzzle 🧩 </p>
+      <p>This project is just starting out, I hope you enjoyed it!</p>
+      <p>If you want to design your own puzzle and share with the world, you can go to <a href="/?edit=1">Edit Mode</a> and start drawing!</p>
+      <p>You can find more about the creation process in the documentation on the <a href="https://github.com/hykilpikonna/slither-link">GitHub Repo</a>.</p>
+
+      <button on:click={() => completedOverlay = false}>Close</button>
+    </div></div>
+  {/if}
 </main>
