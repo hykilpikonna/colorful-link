@@ -7,6 +7,7 @@
   import { solve } from "./solver";
 
   type i8s = Int8Array
+  const params = new URLSearchParams(location.search)
 
   // Main variables
   const [rows, cols] = [40, 40]
@@ -23,7 +24,7 @@
 
   // Editing controls
   let grid: HTMLDivElement
-  let [editMode, dragging] = [true, false]
+  let [editMode, dragging] = [params.has('edit'), false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
   let [startTime, elapsed, complete, statusMsg] = [Date.now(), 0, false, '']
