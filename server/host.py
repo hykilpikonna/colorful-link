@@ -77,11 +77,10 @@ async def solve(request: Request):
         tf.write_text(body)
 
         # Run the solver asynchronously with a 60-second timeout
-        solver_path = src / "slsolver"
         try:
             # Create subprocess asynchronously
             process = await asyncio.create_subprocess_exec(
-                str(solver_path), 
+                str(src / "slsolver"), 
                 str(tf), 
                 cwd=str(src), 
                 stdout=asyncio.subprocess.PIPE, 
