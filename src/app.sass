@@ -1,5 +1,5 @@
 @use "sass:color"
-@import "colors"
+@use "colors"
   
 :root
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif
@@ -17,7 +17,7 @@
 
 a
   font-weight: 500
-  color: $color-accent
+  color: colors.$accent
   text-decoration: inherit
   &:hover
     text-decoration: underline
@@ -45,9 +45,9 @@ button
   transition: all 0.25s
 
   &:hover
-    color: $color-accent
+    color: colors.$accent
     transform: translateY(-2px)
-    filter: drop-shadow(0 0 0.5em color.scale($color-accent, $alpha: -90%))
+    filter: drop-shadow(0 0 0.5em color.scale(colors.$accent, $alpha: -90%))
   
   &:focus, &:focus-visible
     outline: none
@@ -62,23 +62,23 @@ main
 .heading
   font-family: "Caveat", cursive
   font-size: 3em
-  background: $color-accent-strong
-  background: -webkit-linear-gradient(70deg, $color-accent-strong, $color-accent)
-  background: linear-gradient(70dge, $color-accent-strong, $color-accent)
+  background: colors.$accent-strong
+  background: -webkit-linear-gradient(70deg, colors.$accent-strong, colors.$accent)
+  background: linear-gradient(70dge, colors.$accent-strong, colors.$accent)
   -webkit-background-clip: text
   -webkit-text-fill-color: transparent
   line-height: 1
 
   will-change: filter
   transition: filter 300ms
-  filter: drop-shadow(0 0 1em color.scale($color-accent-strong, $alpha: -80%))
+  filter: drop-shadow(0 0 1em color.scale(colors.$accent-strong, $alpha: -80%))
   &:hover
-    filter: drop-shadow(0 0 2em color.scale($color-accent-strong, $alpha: -20%))
+    filter: drop-shadow(0 0 2em color.scale(colors.$accent-strong, $alpha: -20%))
 
 .edit-mode-banner
   font-size: 1.2em
   text-align: center
-  color: $color-accent-strong
+  color: colors.$accent-strong
 
 .sub-heading
   display: flex
@@ -102,7 +102,7 @@ main
   width: 30px
 
   &.selected
-    border-color: $color-accent
+    border-color: colors.$accent
 
   input
     padding: 0

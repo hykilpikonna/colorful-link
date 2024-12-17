@@ -1,7 +1,7 @@
 @use "sass:color"
-@import "colors"
+@use "colors"
 
-@debug color.scale($color-line, $alpha: -30%)
+@debug color.scale(colors.$line, $alpha: -30%)
 
 .puzzle-grid
   margin: 1em auto
@@ -16,8 +16,8 @@
   font-size: 11px
 
   &.error
-    color: $color-cross
-    background: color.scale($color-cross, $alpha: -90%)
+    color: colors.$cross
+    background: color.scale(colors.$cross, $alpha: -90%)
 
   &.complete
     opacity: 0.5
@@ -28,8 +28,8 @@
   &.vertical
     width: 4px
     height: 20px
-    border-top: 4px solid $color-dot
-    border-bottom: 4px solid $color-dot
+    border-top: 4px solid colors.$dot
+    border-bottom: 4px solid colors.$dot
 
     &.crossed:before, &.auto-crossed:before
       left: 0
@@ -45,7 +45,7 @@
   &.crossed:before, &.auto-crossed:before
     content: "x"
     font-size: 10px
-    color: $color-cross
+    color: colors.$cross
     position: absolute
     top: -7px
 
