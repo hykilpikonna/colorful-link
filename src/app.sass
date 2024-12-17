@@ -1,0 +1,109 @@
+@use "sass:color"
+@import "colors"
+  
+:root
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif
+  line-height: 1.5
+  font-weight: 400
+
+  color-scheme: dark
+  color: rgba(255, 255, 255, 0.758)
+  background-color: #242424
+
+  font-synthesis: none
+  text-rendering: optimizeLegibility
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+
+a
+  font-weight: 500
+  color: $color-accent
+  text-decoration: inherit
+  &:hover
+    text-decoration: underline
+
+body
+  margin: 0
+  display: flex
+  place-items: center
+  min-width: 320px
+  min-height: 100vh
+
+#app
+  margin: 0 auto
+  padding: 2rem
+  text-align: center
+
+button
+  border-radius: 8px
+  border: 1px solid transparent
+  padding: 0.6em 1.2em
+  font-weight: 500
+  font-family: inherit
+  background-color: #1a1a1a
+  cursor: pointer
+  transition: all 0.25s
+
+  &:hover
+    color: $color-accent
+    transform: translateY(-2px)
+    filter: drop-shadow(0 0 0.5em color.scale($color-accent, $alpha: -90%))
+  
+  &:focus, &:focus-visible
+    outline: none
+
+main
+  display: flex
+  flex-direction: column
+  gap: 1em
+  padding: 1em
+  place-items: center
+
+.heading
+  font-family: "Caveat", cursive
+  font-size: 3em
+  background: $color-accent-strong
+  background: -webkit-linear-gradient(70deg, $color-accent-strong, $color-accent)
+  background: linear-gradient(70dge, $color-accent-strong, $color-accent)
+  -webkit-background-clip: text
+  -webkit-text-fill-color: transparent
+  line-height: 1
+
+  will-change: filter
+  transition: filter 300ms
+  filter: drop-shadow(0 0 1em color.scale($color-accent-strong, $alpha: -80%))
+  &:hover
+    filter: drop-shadow(0 0 2em color.scale($color-accent-strong, $alpha: -20%))
+
+.edit-mode-banner
+  font-size: 1.2em
+  text-align: center
+  color: $color-accent-strong
+
+.sub-heading
+  display: flex
+  place-items: center
+  gap: 10px
+  img
+    height: 1em
+
+.btn-div
+  display: flex
+  gap: 1em
+  flex-wrap: wrap
+  place-items: center
+
+.color-picker
+  display: flex
+  flex-direction: column
+  padding: 1em 0 0 0
+  overflow: hidden
+  height: 42px
+  width: 30px
+
+  &.selected
+    border-color: $color-accent
+
+  input
+    padding: 0
+    border: 0

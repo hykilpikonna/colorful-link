@@ -1,12 +1,10 @@
 @use "sass:color"
-
-$color-dot: #aaa
-$color-line: #90A4AEFF
-$color-cross: #ff7f7f
+@import "colors"
 
 @debug color.scale($color-line, $alpha: -30%)
 
 .puzzle-grid
+  margin: 1em auto
   position: relative
   user-select: none
 

@@ -192,12 +192,12 @@
 </script>
 
 <main class:color-mode={mode === 'color'}>
-  <div class="heading">
-    <img src={viteLogo} class="logo" alt="Vite Logo" />
-    <span class="title">Slither Link</span>
-    <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
+  <div class="heading">Azalea's Colorful Slither Link</div>
+  <div class="sub-heading">
+    <img src={viteLogo} alt="Logo"/>
+    <span><a href="https://github.com/hykilpikonna/slither-link">GitHub</a> | <a href="https://aza.moe">Blog</a></span>
+    <img src={svelteLogo} alt="Logo"/>
   </div>
-  {#if editMode}<div class="edit-mode-banner">Edit Mode</div>{/if}
 
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
@@ -271,57 +271,3 @@
     {#each ckpts as cp, i}<button on:click={() => restorePt(cp)}>{i + 1}</button>{/each}
   </div>
 </main>
-
-<style lang="sass">
-  main
-    display: flex
-    flex-direction: column
-    gap: 1em
-    padding: 1em
-    place-items: center
-
-  .heading
-    display: flex
-    justify-content: center
-    align-items: center
-    gap: 1em
-    will-change: filter
-    transition: filter 300ms
-
-    &:hover
-      filter: drop-shadow(0 0 2em #646cffaa)
-
-  .edit-mode-banner
-    font-size: 1.2em
-    text-align: center
-    color: #55c7e8
-
-  .title
-    font-size: 3em
-    line-height: 1.1
-
-  .logo
-    height: 3em
-    padding: 1.5em
-
-  .btn-div
-    display: flex
-    gap: 1em
-    flex-wrap: wrap
-    place-items: center
-
-  .color-picker
-    display: flex
-    flex-direction: column
-    padding: 1em 0 0 0
-    overflow: hidden
-    height: 42px
-    width: 30px
-
-    &.selected
-      border-color: #646cff
-
-    input
-      padding: 0
-      border: 0
-</style>
