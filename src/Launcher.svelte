@@ -6,9 +6,10 @@
   const urlParams = new URLSearchParams(window.location.search);
   const puzzleId = urlParams.get("puzzle");
   let puzzleData: Checkpoint | null = null;
+  let error: string | null = null;
 
   if (!puzzleId) window.location.href = "/?puzzle=meow";
-  else Backend.get(puzzleId).then((data) => (puzzleData = data));
+  else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch((e) => (error = e));
 </script>
 
 {#if puzzleData !== null && puzzleId !== null}
@@ -18,8 +19,12 @@
     <div>
       {#if puzzleId === null}
         <a href="/?puzzle=meow">Redirecting...</a>
+      {:else if error}
+        <h2 class="error">Error</h2>
+        <span>{error}</span>
       {:else}
-        <div>Loading...</div>
+        <h2>Loading...</h2>
+        <span>Fetching puzzle data...</span>
       {/if}
     </div>
   </div>

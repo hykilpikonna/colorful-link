@@ -3,7 +3,7 @@ import random
 from fastapi.responses import RedirectResponse
 import uvicorn
 from subprocess import check_output
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
@@ -61,7 +61,7 @@ async def input_request(request: Request):
 async def get_puzzle(id: str):
     tf = data / f"{id}.json"
     if not tf.exists():
-        return {"error": "Puzzle not found"}
+        raise HTTPException(status_code=404, detail="Puzzle not found")
     return json.loads(tf.read_text())
 
 
