@@ -24,6 +24,12 @@
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
   let [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
 
+  if (rows < 10 && cols < 10) {
+    cfg.cellW = 50
+    cfg.lineW = 8
+    cfg.totalW = cfg.cellW + cfg.lineW
+  }
+
   // Colors
   let [hColors, vColors, colors, css, ci] = [zero8(eRows * eCols), zero8(eRows * eCols), ["#90A4AE"], document.createElement('style'), 0]
   document.head.appendChild(css)
@@ -281,7 +287,8 @@
   }
 </script>
 
-<main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross} class:mobile={hasTouch}>
+<main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross} class:mobile={hasTouch} 
+  style="--gcw: {cfg.cellW}px; --glw: {cfg.lineW}px; --gtw: {cfg.totalW}px;">
   <div class="heading">Azalea's Colorful Slither Link</div>
   <div class="sub-heading">
     <img src={viteLogo} alt="Logo"/>

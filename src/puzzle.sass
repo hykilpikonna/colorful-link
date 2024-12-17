@@ -11,10 +11,13 @@
 
 .grid-number
   position: absolute
-  width: 20px
-  height: 20px
+  width: var(--gcw)
+  height: var(--gcw)
   text-align: center
-  font-size: 11px
+  font-size: calc(var(--gcw) * 0.6)
+
+  // Vertical center
+  line-height: calc(var(--gcw) * 0.9)
 
   &.error
     color: colors.$cross
@@ -27,18 +30,18 @@
   position: absolute
 
   &.vertical
-    width: 4px
-    height: 20px
-    border-top: 4px solid colors.$dot
-    border-bottom: 4px solid colors.$dot
+    width: var(--glw)
+    height: var(--gcw)
+    border-top: var(--glw) solid colors.$dot
+    border-bottom: var(--glw) solid colors.$dot
 
     &.crossed:before, &.auto-crossed:before
       left: 0
       top: 2px
 
   &:not(.vertical)
-    width: 24px
-    height: 4px
+    width: var(--gtw)
+    height: var(--glw)
 
   &.selected
     background: var(--c)
@@ -48,10 +51,10 @@
 
   &.crossed:before, &.auto-crossed:before
     content: "x"
-    font-size: 10px
+    font-size: calc(var(--gcw) * 0.5)
     color: colors.$cross
     position: absolute
-    top: -7px
+    top: calc(var(--gcw) * -0.35)
 
 main:not(.mobile) .grid-line:hover
   background: var(--c)
