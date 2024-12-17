@@ -2,9 +2,9 @@ import { mount } from 'svelte'
 import './app.sass'
 import './puzzle.sass'
 import './fonts/caveat.sass'
-import App from './App.svelte'
+import Launcher from './Launcher.svelte'
 
-const app = mount(App, {
+const app = mount(Launcher, {
   target: document.getElementById('app')!,
 })
 
