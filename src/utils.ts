@@ -1,4 +1,3 @@
-
 export const cfg = {
   cellW: 20,
   lineW: 4,
@@ -50,5 +49,17 @@ export const JsonTy = {
     a.download = name
     a.click()
     URL.revokeObjectURL(a.href)
+  }
+}
+
+export const Fmt = {
+  duration: (ms: number) => {
+    let d = 0, h = 0, m = 0, s = 0;
+    [s, ms] = [Math.floor(ms / 1000), ms % 1000];
+    [m, s] = [Math.floor(s / 60), s % 60];
+    [h, m] = [Math.floor(m / 60), m % 60];
+    [d, h] = [Math.floor(h / 24), h % 24];
+    
+    return `${d ? `${d}d ` : ''}${h ? `${h}:` : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   }
 }

@@ -2,7 +2,7 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, JsonTy, nStates, randInt, range, zero8 } from "./utils";
+  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8 } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
 
@@ -26,6 +26,9 @@
   let [editMode, dragging] = [true, false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
+  let [startTime, elapsed] = [Date.now(), 0]
+  
+  setInterval(() => elapsed = Date.now() - startTime, 100)
 
   // Checkpoints
   interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
@@ -256,6 +259,7 @@
     Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path?
   </div>
 
+  <div class="timer">{Fmt.duration(elapsed)}</div>
   <div class="puzzle-grid" style={`height: ${rows * cfg.totalW}px; width: ${cols * cfg.totalW}px;`}
        on:click={clickDiv} on:contextmenu={clickDiv} on:keypress={console.log} role="grid" tabindex="0"
        on:mousedown={startDrag} on:mousemove={e => dragging && clickDiv(e)} on:mouseup={() => dragging = false}
