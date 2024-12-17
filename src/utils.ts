@@ -71,6 +71,9 @@ export const Fmt = {
 }
 
 export const Backend = {
-  get: (id: string) => fetch(`${cfg.backend}/${id}`).then(r => r.text()).then(JsonTy.parse),
+  get: (id: string) => fetch(`${cfg.backend}/${id}`).then(r => {
+    if (!r.ok) throw new Error(`Failed to get puzzle: ${r.status}`)
+    r.text()
+  }).then(JsonTy.parse),
   post: (data: Checkpoint) => fetch(`${cfg.backend}/`, { method: "post", body: JsonTy.stringify(data) }),
 }

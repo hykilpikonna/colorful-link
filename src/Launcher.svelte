@@ -9,7 +9,7 @@
   let error: string | null = null;
 
   if (!puzzleId) window.location.href = "/?puzzle=meow";
-  else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch((e) => (error = e));
+  else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch(e => (error = e));
 </script>
 
 {#if puzzleData !== null && puzzleId !== null}
