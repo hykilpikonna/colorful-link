@@ -7,6 +7,7 @@
   margin: 1em auto
   position: relative
   user-select: none
+  touch-action: manipulation
 
 .grid-number
   position: absolute
@@ -52,9 +53,9 @@
     position: absolute
     top: -7px
 
-  &:hover
-    background: var(--c)
-    opacity: 0.5
+main:not(.mobile) .grid-line:hover
+  background: var(--c)
+  opacity: 0.5
 
 .color-mode .grid-line:not(.selected):not(.crossed):not(.auto-crossed)
   background: var(--c)

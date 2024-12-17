@@ -77,3 +77,8 @@ export const Backend = {
   }).then(JsonTy.parse),
   post: (data: Checkpoint) => fetch(`${cfg.backend}/`, { method: "post", body: JsonTy.stringify(data) }),
 }
+
+export const Misc = {
+  // @ts-ignore
+  hasTouch: () => 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+}

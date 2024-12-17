@@ -2,11 +2,12 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8, type Checkpoint, type i8s } from "./utils";
+  import { cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type i8s } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
 
   const params = new URLSearchParams(location.search)
+  const hasTouch = Misc.hasTouch()
 
   // Can pass in puzzle data from props
   interface Props { puzzleId?: string, puzzleData?: Checkpoint }
@@ -155,14 +156,20 @@
     const idx = (sy + osy) * eCols + (sx + osx)
 
     // Flip the state of the edge
-    const state = event.type === 'contextmenu' ? 2 : 1
     if (color) {
       if (vertical) vColors[idx] = ci
       else hColors[idx] = ci
     }
-    else {
+    else if (!hasTouch) {
+      // Mouse is accurate, so right click to cross, left click to select
+      const state = event.type === 'contextmenu' ? 2 : 1
       if (vertical) vStates[idx] = vStates[idx] % 3 !== state ? state : 0
       else hStates[idx] = hStates[idx] % 3 !== state ? state : 0
+    }
+    else {
+      // Touch is not accurate, click once to select, click again to cross, click again to clear
+      if (vertical) vStates[idx] = (vStates[idx] + 1) % 3
+      else hStates[idx] = (hStates[idx] + 1) % 3
     }
 
     // Check the validity of the clicked cell and its neighbors (check 5x5 but clean only 3x3)
@@ -269,7 +276,7 @@
   }
 </script>
 
-<main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross}>
+<main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross} class:mobile={hasTouch}>
   <div class="heading">Azalea's Colorful Slither Link</div>
   <div class="sub-heading">
     <img src={viteLogo} alt="Logo"/>
