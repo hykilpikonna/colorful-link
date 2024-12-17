@@ -2,11 +2,16 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8, type Checkpoint } from "./utils";
+  import { cfg, eStates, Fmt, JsonTy, nStates, randInt, range, zero8, type Checkpoint, type i8s } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
 
   const params = new URLSearchParams(location.search)
+
+  // Can pass in puzzle data from props
+  interface Props { puzzleData?: { id: string, numbers: i8s, nMask: i8s, hColors: i8s, vColors: i8s, colors: string[] } }
+  export let { puzzleData }: Props = {}
+  const pid = puzzleData?.id ?? 'slitherlink'
 
   // Main variables
   const [rows, cols] = [40, 40]
@@ -21,6 +26,16 @@
   const updateColors = () => css.innerHTML = colors.map((c, i) => `.grid-line.c${i} { --c: ${c} }`).join('\n')
   updateColors()
 
+  // Load puzzle data
+  if (puzzleData) {
+    puzzleData.numbers.forEach((n, idx) => numbers[idx] = n)
+    puzzleData.nMask.forEach((n, idx) => nMask[idx] = n)
+    puzzleData.hColors.forEach((n, idx) => hColors[idx] = n)
+    puzzleData.vColors.forEach((n, idx) => vColors[idx] = n)
+    colors = puzzleData.colors
+    updateColors()
+  }
+
   // Editing controls
   let grid: HTMLDivElement
   let [editMode, dragging] = [params.has('edit'), false]
@@ -31,10 +46,10 @@
 
   // Checkpoints
   const ckpt = () => ({hStates, vStates, numbers, nMask, hColors, vColors, colors})
-  const loadPt = () => JsonTy.parse(localStorage.getItem('slitherlink-checkpoints') ?? "[]")
+  const loadPt = () => JsonTy.parse(localStorage.getItem(`${pid}-checkpoints`) ?? "[]")
   let ckpts: Checkpoint[] = loadPt()
   const savePt = (fn: () => any) => () => { fn()
-    localStorage.setItem('slitherlink-checkpoints', JsonTy.stringify(ckpts))
+    localStorage.setItem(`${pid}-checkpoints`, JsonTy.stringify(ckpts))
     ckpts = loadPt()
   }
   const restorePt = (pt: Checkpoint) => {
@@ -353,6 +368,8 @@
       <p>This project is just starting out, I hope you enjoyed it!</p>
       <p>If you want to design your own puzzle and share with the world, you can go to <a href="/?edit=1">Edit Mode</a> and start drawing!</p>
       <p>You can find more about the creation process in the documentation on the <a href="https://github.com/hykilpikonna/slither-link">GitHub Repo</a>.</p>
+      <p>If you want to chat, you can reach me on telegram <a href="https://t.me/hykilpikonna">@hykilpikonna</a>.</p>
+      <p>Thanks for playing! 🤗</p>
 
       <button on:click={() => completedOverlay = false}>Close</button>
     </div></div>

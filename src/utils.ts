@@ -1,5 +1,5 @@
 
-type i8s = Int8Array
+export type i8s = Int8Array
 export interface Checkpoint { hStates: i8s, vStates: i8s, hColors: i8s, vColors: i8s, numbers: i8s, nMask: i8s, colors: string[] }
 
 export const cfg = {
