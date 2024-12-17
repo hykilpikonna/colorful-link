@@ -63,12 +63,12 @@
   const inBounds = (x: number, y: number) => x >= 0 && y >= 0 && x < cols && y < rows
 
   // Dots are different from numbers. Lines go out from the dots and round the numbers
-  const edgesFromDot = (x: number, y: number, cb: (st: number, v: boolean, idx: number) => any) => {
+  const edgesFromDot = (x: number, y: number, cb: (st: number, v: boolean, idx: number, x: number, y: number) => any) => {
     const [idx, vIdx, hIdx] = [[x, y], [x, y - 1], [x - 1, y]];
     [idx, vIdx].filter(([x, y]) => inBounds(x, y))
-        .map(([x, y]) => cb(vStates[y * eCols + x], true, y * eCols + x));
+        .map(([x, y]) => cb(vStates[y * eCols + x], true, y * eCols + x, x, y));
     [idx, hIdx].filter(([x, y]) => inBounds(x, y))
-        .map(([x, y]) => cb(hStates[y * eCols + x], false, y * eCols + x));
+        .map(([x, y]) => cb(hStates[y * eCols + x], false, y * eCols + x, x, y));
   }
 
   // Check the validity of a position and auto cross
@@ -89,11 +89,11 @@
         else hStates[idx] = eStates.selectedError
       }})
     }
-    return dotCount === 2
+    return dotCount === 2 || dotCount === 0
   }
 
   function checkPos(x: number, y: number): boolean {
-    if (!inBounds(x, y) || nMask[y * cols + x] === 1) return false
+    if (!inBounds(x, y) || nMask[y * cols + x] === 1) return true
 
     // Count the number of neighboring edges
     let count = 0
@@ -212,6 +212,37 @@
     } else setTimeout(() => editModeReduce(zeros, n), 100)
     console.log(nMask)
   }
+
+  // Check the solution
+  function checkSolution(): string | undefined {
+    // 1. Check if all numbers are rounded with the correct number of edges
+    const rounded = range(rows).every(y => range(cols).every(x => checkPos(x, y)))
+    if (!rounded) return "Not all numbers are rounded with the correct number of edges"
+
+    // 2. Check if all dots have exactly 2 edges
+    const dots = range(rows).every(y => range(cols).every(x => checkDot(x, y)))
+    if (!dots) return "Not all dots have exactly 2 edges"
+
+    // 3. Check if all edges are connected and there is only one loop (a single DFS should cover all edges)
+    const visited = [zero8(eRows * eCols), zero8(eRows * eCols)]
+    const dfs = (x: number, y: number, v: boolean) => {
+      if (visited[+v][y * eCols + x] === 1) return
+      visited[+v][y * eCols + x] = 1
+      console.log('DFS', x, y, ['H', 'V'][+v])
+      edgesFromDot(x, y, (st, vn, _, ex, ey) => isSelected(st) && dfs(ex, ey, vn))
+      edgesFromDot((x + +!v), (y + +v), (st, vn, _, ex, ey) => isSelected(st) && dfs(ex, ey, vn))
+    }
+    // Find the first dot to start the DFS
+    let startI = vStates.findIndex(st => st === eStates.selected)
+    if (startI === -1) return "No edges are selected"
+    dfs(startI % eCols, Math.floor(startI / eCols), true)
+    console.log(visited);
+
+    // Check if all edges selected in hStates and vStates are visited
+    const allVisited = hStates.every((st, idx) => st === eStates.selected ? visited[0][idx] === 1 : true) &&
+        vStates.every((st, idx) => st === eStates.selected ? visited[1][idx] === 1 : true)
+    if (!allVisited) return "Not all edges are connected"
+  }
 </script>
 
 <main class:color-mode={mode === 'color'} class:colorful-cross={true}>
@@ -271,6 +302,10 @@
         <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       {/if}
       <button on:click={() => mode = modes[(modes.indexOf(mode) + 1) % modes.length]}>Mode: {mode}</button>
+    </div>
+
+    <div class="btn-div">
+      <button on:click={() => console.log(checkSolution())}>Check Solution</button>
     </div>
 
     <!-- Edit Colors (input for now, maybe a color picker later) -->
