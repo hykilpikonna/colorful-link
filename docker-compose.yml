@@ -1,0 +1,9 @@
+name: Colorful Link
+services:
+  slither:
+    build: .
+    container_name: slither
+    ports:
+      - 51562:51562
+    volumes:
+      - ./server/data:/app/data

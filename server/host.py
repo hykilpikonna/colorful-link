@@ -1,5 +1,6 @@
 import json
 import random
+import tempfile
 from fastapi.responses import RedirectResponse
 import uvicorn
 from subprocess import check_output
@@ -63,6 +64,22 @@ async def get_puzzle(id: str):
     if not tf.exists():
         raise HTTPException(status_code=404, detail="Puzzle not found")
     return json.loads(tf.read_text())
+
+
+@app.post("/solve")
+async def input_request(request: Request):
+    body = (await request.body()).decode().replace("\r\n", "\n")
+
+    # Write body to a file
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tf = Path(tmpdir) / "puzzle.slk"
+        tf.write_text(body)
+
+        # Run the solver (example: ./slsolver mypuzzle.slk)
+        # Solver is https://github.com/davidjosepha/slitherlink
+        solver_path = src / "slsolver"
+        output = check_output([solver_path, str(tf)], cwd=src).decode()
+        return output
 
 
 # Getting / redirects to main page
