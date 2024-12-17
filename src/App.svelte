@@ -317,13 +317,6 @@
       <button on:click={() => mode = modes[(modes.indexOf(mode) + 1) % modes.length]}>Mode: {mode}</button>
     </div>
 
-    <!-- Check solution -->
-    {#if !editMode}
-      <div class="btn-div">
-        <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
-      </div>
-    {/if}
-
     <!-- Edit Colors (input for now, maybe a color picker later) -->
     {#if mode === 'color'}
       <div class="btn-div">
@@ -344,6 +337,13 @@
     <button on:click={savePt(() => ckpts.shift())}>Remove</button>
     {#each ckpts as cp, i}<button on:click={() => restorePt(cp)}>{i + 1}</button>{/each}
   </div>
+
+  <!-- Check solution -->
+  {#if !editMode}
+    <div class="btn-div">
+      <button on:click={() => console.log(statusMsg = checkSolution())}>Check Solution</button>
+    </div>
+  {/if}
 
   {#if completedOverlay}
     <div class="overlay"><div>
