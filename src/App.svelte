@@ -57,18 +57,43 @@
         .map(([i, res]) => hStates[i] != res ? hStates[i] = res : null);
   }
 
+  const isSelected = (st: number) => st === eStates.selected || st === eStates.selectedError
   const withEdges = (x: number, y: number, cond: (st: number) => boolean, cb: (st: number) => any) =>
       updateEdges(x, y, cond, st => { cb(st); return st })
   const inBounds = (x: number, y: number) => x >= 0 && y >= 0 && x < cols && y < rows
+
+  // Dots are different from numbers. Lines go out from the dots and round the numbers
+  const edgesFromDot = (x: number, y: number, cb: (st: number, v: boolean, idx: number) => any) => {
+    const [idx, vIdx, hIdx] = [[x, y], [x, y - 1], [x - 1, y]];
+    [idx, vIdx].filter(([x, y]) => inBounds(x, y))
+        .map(([x, y]) => cb(vStates[y * eCols + x], true, y * eCols + x));
+    [idx, hIdx].filter(([x, y]) => inBounds(x, y))
+        .map(([x, y]) => cb(hStates[y * eCols + x], false, y * eCols + x));
+  }
 
   // Check the validity of a position and auto cross
   function clearAutoMark(x: number, y: number) {
     if (!inBounds(x, y)) return
     updateEdges(x, y, (st) => st === eStates.autoCrossed, (_) => eStates.none)
+    updateEdges(x, y, (st) => st === eStates.selectedError, (_) => eStates.selected)
+
   }
 
-  function checkPos(x: number, y: number) {
-    if (!inBounds(x, y) || nMask[y * cols + x] === 1) return
+  function checkDot(x: number, y: number): boolean {
+    // Check if the number of edges going out from the dot is less than 2
+    let dotCount = 0
+    edgesFromDot(x, y, (st) => dotCount += +isSelected(st))
+    if (dotCount > 2) {
+      edgesFromDot(x, y, (st, v, idx) => { if (isSelected(st)) {
+        if (v) vStates[idx] = eStates.selectedError
+        else hStates[idx] = eStates.selectedError
+      }})
+    }
+    return dotCount === 2
+  }
+
+  function checkPos(x: number, y: number): boolean {
+    if (!inBounds(x, y) || nMask[y * cols + x] === 1) return false
 
     // Count the number of neighboring edges
     let count = 0
@@ -83,6 +108,8 @@
       updateEdges(x, y, (st) => st === eStates.none, (_) => eStates.autoCrossed)
       numberState[y * cols + x] = nStates.complete
     }
+    
+    return count === n
   }
 
   // Positions for click handling [offset x, offset y, horizontal/vertical], [center rel pos x, rel pos y]
@@ -124,21 +151,18 @@
     // Flip the state of the edge
     const state = event.type === 'contextmenu' ? 2 : 1
     if (color) {
-      // Press shift to select the entire block
-      if (event.shiftKey) {
-
-      } 
       if (vertical) vColors[idx] = ci
       else hColors[idx] = ci
     }
     else {
-      if (vertical) vStates[idx] = vStates[idx] !== state ? state : 0
-      else hStates[idx] = hStates[idx] !== state ? state : 0
+      if (vertical) vStates[idx] = vStates[idx] % 3 !== state ? state : 0
+      else hStates[idx] = hStates[idx] % 3 !== state ? state : 0
     }
 
     // Check the validity of the clicked cell and its neighbors (check 5x5 but clean only 3x3)
     updateArea.forEach(([dx, dy, outer]) => outer ? 0 : clearAutoMark(sx + dx, sy + dy))
     updateArea.forEach(([dx, dy, _]) => checkPos(sx + dx, sy + dy))
+    updateArea.forEach(([dx, dy, _]) => checkDot(sx + dx, sy + dy))
 
     event.preventDefault()
   }

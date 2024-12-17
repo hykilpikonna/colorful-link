@@ -9,6 +9,7 @@ export const eStates = {
   none: 0,
   selected: 1,
   crossed: 2,
+  selectedError: 4,
   autoCrossed: 5
 }
 

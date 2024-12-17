@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cfg, pos } from "../utils";
+  import { cfg, eStates, pos } from "../utils";
 
   interface Props { sx: number, sy: number, vertical?: boolean, state: number, colorIdx: number }
   let { sx, sy, vertical, state, colorIdx }: Props = $props()
@@ -11,5 +11,8 @@
 
 <div class="grid-line c{colorIdx}" style="{styles}"
      class:vertical={vertical}
-     class:selected={state === 1} class:crossed={state === 2} class:auto-crossed={state === 5}>
+     class:selected={state === eStates.selected || state === eStates.selectedError}
+     class:error={state === eStates.selectedError}
+     class:crossed={state === eStates.crossed}
+     class:auto-crossed={state === eStates.autoCrossed}>
 </div>
