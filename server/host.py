@@ -69,3 +69,7 @@ async def get_puzzle(id: str):
 @app.get("/")
 async def get_main():
     return RedirectResponse("https://slither.hydev.org")
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=51562)
