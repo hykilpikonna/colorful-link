@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import json
 import random
 import tempfile
@@ -25,6 +26,9 @@ app.add_middleware(
 )
 
 keys = {
+    "name": "string",
+    "author": "string",
+    "description": "string",
     "rows": "int",
     "cols": "int",
     "hStates": "list[int]",
@@ -48,8 +52,9 @@ async def input_request(request: Request):
         obj = json.loads(body)
         k = [k for k in obj if k not in keys]
         assert not k, f"Invalid keys: {k}"
+        obj['date'] = datetime.datetime.now().isoformat()
     except Exception as e:
-        return str(e)
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {str(e)}")
 
     # Randomly generate a 8-letter id for the puzzle
     id = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8))
