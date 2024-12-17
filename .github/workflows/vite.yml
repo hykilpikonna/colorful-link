@@ -2,8 +2,20 @@ name: Vite Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -12,15 +24,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: |
-          bun install
-          bun run build
-      - uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      
+      - name: Build
+        run: bun install && bun run build
 
-      # - uses: actions/upload-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+      
+      # - name: Deploy
+      #   uses: peaceiris/actions-gh-pages@v4
       #   with:
-      #     name: pages
-      #     path: ./dist
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./dist
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
