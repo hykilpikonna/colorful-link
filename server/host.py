@@ -1,3 +1,4 @@
+import asyncio
 import json
 import random
 import tempfile
@@ -67,7 +68,7 @@ async def get_puzzle(id: str):
 
 
 @app.post("/solve")
-async def input_request(request: Request):
+async def solve(request: Request):
     body = (await request.body()).decode().replace("\r\n", "\n")
 
     # Write body to a file
@@ -75,11 +76,33 @@ async def input_request(request: Request):
         tf = Path(tmpdir) / "puzzle.slk"
         tf.write_text(body)
 
-        # Run the solver (example: ./slsolver mypuzzle.slk)
-        # Solver is https://github.com/davidjosepha/slitherlink
+        # Run the solver asynchronously with a 60-second timeout
         solver_path = src / "slsolver"
-        output = check_output([solver_path, str(tf)], cwd=src).decode()
-        return output
+        try:
+            # Create subprocess asynchronously
+            process = await asyncio.create_subprocess_exec(
+                str(solver_path), 
+                str(tf), 
+                cwd=str(src), 
+                stdout=asyncio.subprocess.PIPE, 
+                stderr=asyncio.subprocess.PIPE
+            )
+
+            # Wait for the process to finish with a 60-second timeout
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=60)
+            
+            if process.returncode != 0:
+                raise HTTPException(status_code=500, detail=f"Solver failed: {stderr.decode()}")
+            
+            return stdout.decode()
+        
+        except asyncio.TimeoutError:
+            process.kill()  # Ensure the process is killed if it times out
+            await process.wait()  # Wait for the process to be fully terminated
+            raise HTTPException(status_code=504, detail="Solver took too long to respond (timeout of 60 seconds)")
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
 # Getting / redirects to main page
