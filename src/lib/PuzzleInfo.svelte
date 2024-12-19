@@ -1,5 +1,7 @@
 <script lang="ts">
-  export let puzzleData = {}
+  import type { MetaCheckpoint } from "../utils";
+
+  export let puzzleData: MetaCheckpoint | null = null
 </script>
 
 <div class="puzzle-desc">

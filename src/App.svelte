@@ -1,7 +1,5 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
   import { cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type MetaCheckpoint } from "./utils";
   import Line from "./lib/Line.svelte";
@@ -9,6 +7,7 @@
   import PuzzleInfo from './lib/PuzzleInfo.svelte';
   import CompletedOverlay from './lib/CompletedOverlay.svelte';
   import UploadOverlay from './lib/UploadOverlay.svelte';
+  import Heading from './lib/Heading.svelte';
 
   const params = new URLSearchParams(location.search)
   const hasTouch = Misc.hasTouch()
@@ -290,15 +289,7 @@
 
 <main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross} class:mobile={hasTouch} 
   style="--gcw: {cfg.cellW}px; --glw: {cfg.lineW}px; --gtw: {cfg.totalW}px;">
-  <div class="heading">Azalea's Colorful Slither Link</div>
-  <div class="sub-heading">
-    <img src={viteLogo} alt="Logo"/>
-    <span><a href="https://github.com/hykilpikonna/colorful-link">GitHub</a> | <a href="https://aza.moe">Blog</a></span>
-    <img src={svelteLogo} alt="Logo"/>
-  </div>
-  <div class="rules">
-    Welcome to SlitherLink! 🧩 The rules are simple: Draw lines between the dots to create one big loop (no crossings, no branches). The numbers are your hints – they tell you how many lines should surround them. Left-click to draw, right-click to mark with an X. Can you crack the perfect path? <a href="https://www.youtube.com/watch?v=fqwE-CpeGS4&list=PLH_elo2OIwaBk44COgFhnJRt0-8xKMBQn">YouTube Tutorial</a>
-  </div>
+  <Heading/>
 
   {#if statusMsg}
     <div class="status" class:error={!complete}>{statusMsg}</div>
