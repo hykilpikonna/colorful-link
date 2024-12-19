@@ -362,7 +362,7 @@
     {#if mode === 'color'}
       <div class="btn-div">
         <button on:click={() => colors = [...colors, "#90A4AE"]}>+</button>
-        {#each colors as color, idx}<ColorPicker bind:ci={ci} {idx} {colors} {updateColors}/>{/each}
+        {#each colors as _, idx}<ColorPicker bind:ci={ci} {idx} {colors} {updateColors}/>{/each}
       </div>
     {/if}
     <div class="btn-div">
