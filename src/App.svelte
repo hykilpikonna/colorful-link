@@ -362,9 +362,14 @@
       <div class="btn-div">
         <button on:click={() => colors = [...colors, "#90A4AE"]}>+</button>
         {#each colors as color, idx}
+        <div class="color-picker-div">
           <button class="color-picker" on:click={() => ci = idx} aria-label="color" class:selected={ci === idx}>
-            <input type="color" value={color} on:input={e => { colors[idx] = e.target.value; updateColors() }}/>
+            <div class="color" style={`background-color: ${color}`} role="none"
+              on:click={() => document.getElementById(`color-picker-${idx}`)!.click()}></div>
           </button>
+          <input type="color" value={color} id={`color-picker-${idx}`}
+            on:input={e => { colors[idx] = e.target.value; updateColors() }}/>
+        </div>
         {/each}
       </div>
     {/if}

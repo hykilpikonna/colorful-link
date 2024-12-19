@@ -98,20 +98,31 @@ main
   flex-wrap: wrap
   place-items: center
 
-.color-picker
-  display: flex
-  flex-direction: column
-  padding: 1em 0 0 0
-  overflow: hidden
-  height: 42px
-  width: 30px
+.color-picker-div
+  position: relative
 
-  &.selected
-    border-color: colors.$accent
+  .color-picker
+    display: flex
+    align-items: flex-end
+    padding: 0
+    overflow: hidden
+    height: 42px
+    width: 30px
+
+    &.selected
+      border-color: colors.$accent
+
+    .color
+      height: 60%
+      width: 100%
+      z-index: 10
 
   input
-    padding: 0
-    border: 0
+    max-height: 0
+    opacity: 0
+    position: absolute
+    bottom: 0
+    z-index: -10
 
 @import url('https://fonts.googleapis.com/css2?family=Teko&display=swap')
 .timer
