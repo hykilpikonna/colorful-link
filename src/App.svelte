@@ -50,6 +50,7 @@
 
   // Checkpoints
   const ckpt = () => ({rows, cols, hStates, vStates, numbers, nMask, hColors, vColors, colors})
+  const resetPoint = JsonTy.stringify(ckpt())
   const loadPt = () => JsonTy.lsDefault(`${pid}-checkpoints`, [])
   let ckpts: Checkpoint[] = loadPt()
   const savePt = (fn: () => any) => () => { fn()
@@ -370,6 +371,9 @@
     <div class="btn-div">
       <button on:click={() => JsonTy.download(ckpt(), 'slitherlink-checkpoint.json')}>Download</button>
       <button on:click={() => upload = ckpt()}>Upload</button>
+      <button on:click={() => confirm("Are you sure you want to reset? (checkpoints will not be removed)") && 
+        restorePt(JsonTy.parse(resetPoint))
+      }>Reset</button>
     </div>
   {/if}
 
