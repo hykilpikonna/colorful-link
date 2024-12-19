@@ -15,7 +15,6 @@
   // Can pass in puzzle data from props
   interface Props { puzzleId?: string, puzzleData?: MetaCheckpoint }
   export let { puzzleId, puzzleData }: Props = {}
-  const pid = puzzleId ?? 'slitherlink'
 
   // Main variables
   const [rows, cols] = [+(puzzleData?.rows ?? params.get('size') ?? 25), +(puzzleData?.cols ?? params.get('size') ?? 25)]
@@ -23,6 +22,7 @@
   let [numbers, nMask, numberState] = [zero8(rows * cols), zero8(rows * cols).fill(1), zero8(rows * cols)]
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
   let [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
+  const pid = puzzleId ?? `slitherlink-${rows}x${cols}`
 
   // Auto adapt grid size to screen size
   if (rows < 10 && cols < 10) {
