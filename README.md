@@ -5,8 +5,15 @@
 
 TODO: Remember to add a description meow
 
-TODO: Save settings, auto save progress
 
 ## Development
 
 [VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+
+### TODO
+
+- [x] Basic game and editor
+- [x] Save checkpoints & auto-save
+- [x] Allow uploading custom puzzles
+- [ ] Customizable options (e.g. auto cross, auto save interval, etc.)
+- [ ] List of official and custom puzzles & option to make them public
