@@ -65,9 +65,9 @@ export const JsonTy = {
   },
   lsWrite: (key: string, obj: any) => localStorage.setItem(key, JsonTy.stringify(obj)),
   lsDefault: (key: string, def: any) => {
-    let v = localStorage.getItem(key)
-    if (!v) localStorage.setItem(key, JsonTy.stringify(v = def))
-    return JsonTy.parse(v!)
+    let v = JsonTy.lsRead(key)
+    if (!v) JsonTy.lsWrite(key, def)
+    return v ?? def
   },
 }
 
