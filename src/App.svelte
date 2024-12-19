@@ -24,6 +24,7 @@
   let [hStates, vStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
   let [solutionHStates, solutionVStates] = [zero8(eRows * eCols), zero8(eRows * eCols)]
 
+  // Auto adapt grid size to screen size
   if (rows < 10 && cols < 10) {
     cfg.cellW = 50
     cfg.lineW = 8

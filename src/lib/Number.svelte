@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cfg, nStates, pos, sty } from "../utils";
+  import { cfg, nStates, pos } from "../utils";
 
   interface Props { x: number, y: number, n: number, masked: boolean, state: number }
   let { x, y, n, masked, state }: Props = $props()
@@ -9,9 +9,7 @@
   let styles = pos(left, top)
 </script>
 
-<div class="grid-number" style="{styles}"
-     class:error={state === nStates.error} class:complete={state === nStates.complete} on:click>
-  {#if !masked}
-    {n}
-  {/if}
+<div class="grid-number" style="{styles}" on:click role="none" 
+     class:error={state === nStates.error} class:complete={state === nStates.complete}>
+     {#if !masked}{n}{/if}
 </div>
