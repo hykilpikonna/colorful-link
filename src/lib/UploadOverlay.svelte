@@ -1,11 +1,7 @@
 <script lang="ts">
-  import { Backend, cfg, nStates, pos, sty, type Checkpoint } from "../utils";
+  import { Backend, type Checkpoint } from "../utils";
 
-  interface Props {
-    data?: Checkpoint;
-    callback?: () => void;
-  }
-  export let { data, callback }: Props = {}
+  export let data: Checkpoint | null = null
 
   let name = ""
   let author = ""
@@ -51,7 +47,7 @@
         <p>You can share it by the following link: </p>
         <p><a href={url}>{url}</a></p>
         <p>Thank you for your creation!</p>
-        <button on:click={callback}>Close</button>
+        <button on:click={() => data = null}>Close</button>
       {/if}
     </div>
   </div>

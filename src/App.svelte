@@ -3,11 +3,12 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Number from './lib/Number.svelte'
-  import { Backend, cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type i8s, type MetaCheckpoint } from "./utils";
+  import { cfg, eStates, Fmt, JsonTy, Misc, nStates, randInt, range, zero8, type Checkpoint, type MetaCheckpoint } from "./utils";
   import Line from "./lib/Line.svelte";
   import { solve } from "./solver";
-  import Upload from './lib/Upload.svelte';
   import PuzzleInfo from './lib/PuzzleInfo.svelte';
+  import CompletedOverlay from './lib/CompletedOverlay.svelte';
+  import UploadOverlay from './lib/UploadOverlay.svelte';
 
   const params = new URLSearchParams(location.search)
   const hasTouch = Misc.hasTouch()
@@ -392,20 +393,6 @@
     </div>
   {/if}
 
-  {#if completedOverlay}
-    <div class="overlay" transition:fade><div>
-      <h2>Congrats! 🎉</h2>
-
-      <p>Great job on solving your first puzzle 🧩 </p>
-      <p>This project is just starting out, I hope you enjoyed it!</p>
-      <p>If you want to design your own puzzle and share with the world, you can go to <a href="/?edit=1">Edit Mode</a> and start drawing!</p>
-      <p>You can find more about the creation process in the documentation on the <a href="https://github.com/hykilpikonna/colorful-link">GitHub Repo</a>.</p>
-      <p>If you want to chat, you can reach me on telegram <a href="https://t.me/hykilpikonna">@hykilpikonna</a>.</p>
-      <p>Thanks for playing! 🤗</p>
-
-      <button on:click={() => completedOverlay = false}>Close</button>
-    </div></div>
-  {/if}
-
-  {#if upload} <Upload data={upload} callback={() => upload = null}/> {/if}
+  <CompletedOverlay bind:completedOverlay={completedOverlay}/>
+  <UploadOverlay bind:data={upload}/>
 </main>
