@@ -1,12 +1,12 @@
 <script lang="ts">
   import App from "./App.svelte";
-  import { Backend, type Checkpoint } from "./utils";
+  import { Backend, type MetaCheckpoint } from "./utils";
 
   // Get puzzle id from params
   const urlParams = new URLSearchParams(window.location.search);
   const puzzleId = urlParams.get("puzzle");
   const edit = urlParams.get("edit");
-  let puzzleData: Checkpoint | null = null;
+  let puzzleData: MetaCheckpoint | null = null;
   let error: string | null = null;
 
   if (!edit) {
