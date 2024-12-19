@@ -67,6 +67,9 @@
     updateColors()
   }
   let upload: Checkpoint | null
+  let autoSave: Checkpoint | null = JsonTy.lsRead(`${pid}-auto-save`)
+  if (autoSave) restorePt(autoSave)
+  setInterval(() => { JsonTy.lsWrite(`${pid}-auto-save`, autoSave = ckpt()) }, 30 * 1000)
 
   // Run something on the edges of a cell
   function updateEdges(x: number, y: number, condition: (st: number) => boolean, op: (st: number) => number) {

@@ -59,6 +59,10 @@ export const JsonTy = {
     URL.revokeObjectURL(a.href)
   },
 
+  lsRead: (key: string) => {
+    let v = localStorage.getItem(key)
+    return v ? JsonTy.parse(v) : null
+  },
   lsWrite: (key: string, obj: any) => localStorage.setItem(key, JsonTy.stringify(obj)),
   lsDefault: (key: string, def: any) => {
     let v = localStorage.getItem(key)
