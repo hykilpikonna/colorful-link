@@ -5,7 +5,7 @@
 
 TODO: Remember to add a description meow
 
-TODO: Save settings, auto save progress, editor upload, mobile view
+TODO: Save settings, auto save progress
 
 ## Development
 
