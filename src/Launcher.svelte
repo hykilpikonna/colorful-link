@@ -10,7 +10,7 @@
   let error: string | null = null;
 
   if (!edit) {
-    if (!puzzleId) window.location.href = "/?puzzle=meow";
+    if (!puzzleId) window.location.href = "/?puzzle=heart";
     else Backend.get(puzzleId).then((data) => (puzzleData = data)).catch(e => (error = e));
   }
 </script>
@@ -23,7 +23,7 @@
   <div class="overlay">
     <div>
       {#if puzzleId === null}
-        <a href="/?puzzle=meow">Redirecting...</a>
+        <a href="/?puzzle=heart">Redirecting...</a>
       {:else if error}
         <h2 class="error">Error</h2>
         <span>{error}</span>

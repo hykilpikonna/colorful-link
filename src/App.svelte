@@ -233,8 +233,6 @@
       masked.forEach(idx => nMask[idx] = 0)
       console.log('Solution does not match')
     }
-    //   setTimeout(() => editModeReduce(zeros, n - 1), 100)
-    // } else setTimeout(() => editModeReduce(zeros, n), 100)
     console.log(nMask)
   }
 
