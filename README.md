@@ -17,3 +17,4 @@ TODO: Remember to add a description meow
 - [x] Allow uploading custom puzzles
 - [ ] Customizable options (e.g. auto cross, auto save interval, etc.)
 - [ ] List of official and custom puzzles & option to make them public
+- [ ] Display solution once a puzzle is solved
