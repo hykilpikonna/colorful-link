@@ -57,7 +57,14 @@ export const JsonTy = {
     a.download = name
     a.click()
     URL.revokeObjectURL(a.href)
-  }
+  },
+
+  lsWrite: (key: string, obj: any) => localStorage.setItem(key, JsonTy.stringify(obj)),
+  lsDefault: (key: string, def: any) => {
+    let v = localStorage.getItem(key)
+    if (!v) localStorage.setItem(key, JsonTy.stringify(v = def))
+    return JsonTy.parse(v!)
+  },
 }
 
 export const Fmt = {

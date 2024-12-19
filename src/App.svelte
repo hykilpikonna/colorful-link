@@ -42,15 +42,18 @@
   let [editMode, dragging, colorfulCross] = [params.has('edit'), false, false]
   const modes = ['line', 'mask', 'color']
   let mode = 'line'
-  let [startTime, elapsed, complete, completedOverlay, statusMsg] = [Date.now(), 0, false, false, '']
+
+  // Solve Timer
+  let startTime = JsonTy.lsDefault(`${pid}-start-time`, Date.now())
+  let [elapsed, complete, completedOverlay, statusMsg] = [0, false, false, '']
   setInterval(() => !complete && (elapsed = Date.now() - startTime), 100)
 
   // Checkpoints
   const ckpt = () => ({rows, cols, hStates, vStates, numbers, nMask, hColors, vColors, colors})
-  const loadPt = () => JsonTy.parse(localStorage.getItem(`${pid}-checkpoints`) ?? "[]")
+  const loadPt = () => JsonTy.lsDefault(`${pid}-checkpoints`, [])
   let ckpts: Checkpoint[] = loadPt()
   const savePt = (fn: () => any) => () => { fn()
-    localStorage.setItem(`${pid}-checkpoints`, JsonTy.stringify(ckpts))
+    JsonTy.lsWrite(`${pid}-checkpoints`, ckpts)
     ckpts = loadPt()
   }
   const restorePt = (pt: Checkpoint) => {
