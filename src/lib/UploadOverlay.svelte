@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from "svelte/transition"
   import { Backend, type Checkpoint } from "../utils";
 
   export let data: Checkpoint | null = null
@@ -25,7 +26,7 @@
 </script>
 
 {#if data}
-  <div class="overlay">
+  <div class="overlay" transition:fade>
     <div>
       {#if !id}
         <h2>Upload Puzzle</h2>
