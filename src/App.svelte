@@ -59,12 +59,12 @@
     ckpts = loadPt()
   }
   const restorePt = (pt: Checkpoint) => {
-    pt.hStates.forEach((st, idx) => hStates[idx] = st)
-    pt.vStates.forEach((st, idx) => vStates[idx] = st)
-    pt.numbers.forEach((n, idx) => numbers[idx] = n)
-    pt.nMask.forEach((n, idx) => nMask[idx] = n)
-    pt.hColors.forEach((n, idx) => hColors[idx] = n)
-    pt.vColors.forEach((n, idx) => vColors[idx] = n)
+    pt.hStates?.forEach((st, idx) => hStates[idx] = st)
+    pt.vStates?.forEach((st, idx) => vStates[idx] = st)
+    pt.numbers?.forEach((n, idx) => numbers[idx] = n)
+    pt.nMask?.forEach((n, idx) => nMask[idx] = n)
+    pt.hColors?.forEach((n, idx) => hColors[idx] = n)
+    pt.vColors?.forEach((n, idx) => vColors[idx] = n)
     colors = pt.colors
     updateColors()
   }
@@ -292,6 +292,14 @@
     // Update every edge
     range(eRows).forEach(y => range(eCols).forEach(x => checkPos(x, y)))
   }
+
+  let importFileEl: HTMLInputElement
+  function importFile(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+    const reader = new FileReader()
+    reader.onload = () => restorePt(JsonTy.parse(reader.result as string))
+    // @ts-ignore
+    reader.readAsText(e.target!!.files[0])
+  }
 </script>
 
 <main class:color-mode={mode === 'color'} class:colorful-cross={colorfulCross} class:mobile={hasTouch} 
@@ -371,6 +379,9 @@
       <button on:click={() => confirm("Are you sure you want to reset? (checkpoints will not be removed)") && 
         restorePt(JsonTy.parse(resetPoint))
       }>Reset</button>
+      <!-- Import -->
+      <button on:click={() => importFileEl.click()}>Import</button>
+      <input type="file" accept=".json" bind:this={importFileEl} on:change={importFile} style="display: none"/>
     </div>
   {/if}
 
